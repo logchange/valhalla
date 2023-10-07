@@ -1,6 +1,6 @@
 import os
 
-from src.common.logger import info, error
+from valhalla.common.logger import info, error
 
 
 def get_version() -> str:
