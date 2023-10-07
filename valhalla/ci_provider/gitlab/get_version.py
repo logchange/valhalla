@@ -11,10 +11,10 @@ def get_version() -> str:
 
         if ci_commit_branch.startswith('release-'):
             project_version = ci_commit_branch[len('release-'):]
-            error(f'Project version that is going to be released: {project_version}')
+            info(f'Project version that is going to be released: {project_version}')
             return project_version
         else:
-            error('This is not a release branch! This script should not be run!')
+            error('This is not a release branch! This script should not be run! The name of the branch must be release-X.X.X')
             error('Check valhalla configration and manual !')
             exit(-1)
     else:
