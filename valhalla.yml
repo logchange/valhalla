@@ -1,2 +1,7 @@
 git_host: gitlab
 project_name: valhalla
+before_commit:
+  - echo "test"
+  - echo "test2"
+  - ls -l
+  - echo "Good job!" & ps
