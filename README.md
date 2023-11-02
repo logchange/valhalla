@@ -25,6 +25,21 @@ saving time, and promoting compliance with established regulations.
 - if using GitLab workflows
   for `merge requests workflow` [(link)](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Workflows/MergeRequest-Pipelines.gitlab-ci.yml)
   you have to add `if: '$CI_COMMIT_BRANCH =~ /^release-*/` to global workflow configuration
+- create `valhalla.yml` in your project
+  ```yml
+  # This file is used by valhalla tool to create release 🌌
+  # Visit https://github.com/logchange/valhalla and leave a star 🌟
+  # More info about configuration you can find https://github.com/logchange/valhalla#%EF%B8%8F-configuration ⬅️
+  git_host: gitlab # your project ci provider
+  project_name: valhalla # your project name used during creating release, can be used as placeholder for other actions
+  commit:
+    enabled: True # if this is True commands from before will be performed and committed to branch
+    before: # list of bash actions to perform before commit (if any)
+      - echo "test"
+      - echo "test2"
+      - ls -l
+      - echo "Good job!" & ps
+  ```
 
 ### 🔸 usage
 

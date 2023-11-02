@@ -3,7 +3,7 @@ import os
 from valhalla.common.logger import info, error
 
 
-def get_version() -> str:
+def get_version_number_to_release() -> str:
     ci_commit_branch = os.environ.get('CI_COMMIT_BRANCH')
 
     if ci_commit_branch:
