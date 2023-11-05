@@ -8,13 +8,20 @@ RUN apk --update --no-cache add  \
     maven  \
     openjdk8
 
-ADD requirements.txt /valhalla/
-RUN pip3 install -r /valhalla/requirements.txt
-ADD valhalla /valhalla/
-ENV PYTHONPATH="${PYTHONPATH}:/valhalla"
+ENV VALHALLA_SRC="/opt/valhalla/"
+ADD requirements.txt $VALHALLA_SRC
+RUN pip3 install -r ${VALHALLA_SRC}requirements.txt
+ADD valhalla $VALHALLA_SRC/valhalla
+ADD __main__.py $VALHALLA_SRC
+ENV PYTHONPATH="${PYTHONPATH}:${VALHALLA_SRC}"
+
+ARG WORKING_REPO_PATH="/repository"
+RUN mkdir $WORKING_REPO_PATH
+WORKDIR $WORKING_REPO_PATH
 
 ## TESTS
-#ENV CI_COMMIT_BRANCH="release-1.2.3"
-#ADD valhalla.yml /
+ENV CI_COMMIT_BRANCH="release-1.2.3"
+RUN git clone https://gitlab.com/peter.zmilczak/test-valhalla.git .
+ADD valhalla.yml $WORKING_REPO_PATH
 
-CMD ["python3", "./valhalla/main.py"]
+CMD ["python3", "/opt/valhalla"]
