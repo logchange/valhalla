@@ -40,6 +40,7 @@ saving time, and promoting compliance with established regulations.
       - ls -l
       - echo "Good job!" & ps
   ```
+- Create access token and pass it to CI with variable `VALHALLA_TOKEN`
 
 ### 🔸 usage
 

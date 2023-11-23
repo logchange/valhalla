@@ -1,3 +1,4 @@
+from valhalla.ci_provider.get_token import get_token
 from valhalla.commit import before
 from valhalla.ci_provider.gitlab.get_version import get_version_number_to_release
 from valhalla.commit.commit import GitRepository
@@ -15,9 +16,11 @@ def start():
     if config.commit.enabled:
         info("Commit enabled is True so scripts, commit, push will be performed")
         before.execute(config.commit.before_commands)
-        git = GitRepository()
+        git = GitRepository(config.commit.git_username, config.commit.git_email)
         git.commit(f"Releasing version {project.version}")
-        git.push()
+        token = get_token()
+        git.push(token)
+        info("Pushed successful!")
     else:
         info("Commit disabled(enabled: False), skipping  scripts, commit, push")
 

@@ -2,8 +2,7 @@ git_host: gitlab
 project_name: valhalla
 commit:
   enabled: True
+  username: Test1234
+  email: test-valhalla@logchange.dev
   before:
-    - echo "test"
-    - echo "test2"
-    - ls -l
-    - echo "Good job!" & ps
+    - echo "test" > some_file3.md

@@ -6,14 +6,18 @@ from valhalla.common.logger import info, error, warn
 
 
 class Commit:
-    def __init__(self, enabled: bool, before_commands: list[str]):
+    def __init__(self, enabled: bool, git_username: str, git_email: str, before_commands: list[str]):
         self.enabled = enabled
+        self.git_username = git_username
+        self.git_email = git_email
         self.before_commands = before_commands
 
     def __repr__(self):
-        return f"   Commit( \n" \
-               f"       enabled={self.enabled} \n" \
-               f"       before_commands={self.before_commands} \n" \
+        return f"   \nCommit( \n" \
+               f"           enabled={self.enabled} \n" \
+               f"           git_username={self.git_username} \n" \
+               f"           git_email={self.git_email} \n" \
+               f"           before_commands={self.before_commands} \n" \
                f"   )"
 
 
@@ -55,8 +59,10 @@ def get_config(path):
 
 def get_commit_part(commit: dict):
     enabled = commit['enabled']
+    git_username = commit['username']
+    git_email = commit['email']
     before_commands = commit['before']
-    return Commit(str_to_bool(enabled), before_commands)
+    return Commit(str_to_bool(enabled), git_username, git_email, before_commands)
 
 
 def str_to_bool(value: str) -> bool:
