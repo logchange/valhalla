@@ -17,10 +17,14 @@ def start():
         info("Commit enabled is True so scripts, commit, push will be performed")
         before.execute(config.commit.before_commands)
         git = GitRepository(config.commit.git_username, config.commit.git_email)
-        git.commit(f"Releasing version {project.version}")
-        token = get_token()
-        git.push(token)
-        info("Pushed successful!")
+        commit_success = git.commit(f"Releasing version {project.version}")
+
+        if commit_success:
+            info("Commit successful, preparing to push")
+            token = get_token()
+            git.push(token)
+            info("Pushed successful!")
+
     else:
         info("Commit disabled(enabled: False), skipping  scripts, commit, push")
 

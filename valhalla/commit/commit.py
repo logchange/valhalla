@@ -1,6 +1,6 @@
 from git import Repo
 
-from valhalla.common.logger import info
+from valhalla.common.logger import info, warn
 
 
 class GitRepository:
@@ -32,14 +32,17 @@ class GitRepository:
 
         info("----------------------")
 
-    def commit(self, msg: str, add=True):
+    def commit(self, msg: str, add=True) -> bool:
         self.status()
+
+        new_changes_in_stage = False
 
         if add:
             untracked = self.repository.untracked_files
             for f in untracked:
                 self.repository.git.add(f)
                 info(f"Untracked file: {f} added to stage")
+                new_changes_in_stage = True
         else:
             info(f"add={add}, skipping adding untracked files")
 
@@ -47,10 +50,16 @@ class GitRepository:
         for f in modified:
             self.repository.git.add(f.a_path)
             info(f"Modified file: {f.a_path} added to stage")
+            new_changes_in_stage = True
+
+        if not new_changes_in_stage:
+            warn("There is noting to commit!")
+            return False
 
         commit = self.repository.index.commit(msg)
         info(f"Created commit: {commit}")
         self.status()
+        return True
 
     def push(self, token):
         info("Preparing to push")
