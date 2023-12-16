@@ -56,6 +56,7 @@ class GitRepository:
             warn("There is noting to commit!")
             return False
 
+        msg += "[VALHALLA SKIP]"
         commit = self.repository.index.commit(msg)
         info(f"Created commit: {commit}")
         self.status()

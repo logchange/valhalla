@@ -2,6 +2,8 @@
 
 🌌 valhalla is a toolkit designed to streamline the release of new versions of software. 🌌
 
+- [dockerhub](https://hub.docker.com/repository/docker/logchange/valhalla/)
+
 ### 📐 background and basic concept
 
 - **complex releasing process:** Creating a new software release involves a multitude of intricate steps. This
@@ -90,10 +92,13 @@ extends:
   - https://raw.githubusercontent.com/logchange/valhalla/master/valhalla.yml
 ```
 
-You can point to any URL that is `valhalla.yml` and it will be loaded and then override by values from
-current file. Currently, you can only inherit once, co it means if you inherit from a file, that also contains 
+You can point to any URL that is `valhalla.yml` format, and it will be loaded and then override by values from
+current file. Currently, you can only inherit once and from one URL, so it means if you inherit from a file, that also contains 
 `extends` keyword, it won't be evaluated.
 
+**Proxy**
+
+TODO
 
 ### 🖖 string predefined variables
 
@@ -107,14 +112,27 @@ current file. Currently, you can only inherit once, co it means if you inherit f
 
 - if using GitLab workflows
   for `merge requests workflow` [(link)](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Workflows/MergeRequest-Pipelines.gitlab-ci.yml)
-  you have to add `if: '$CI_COMMIT_BRANCH =~ /^release-*/` to global workflow configuration
+  you have to add `if: $CI_COMMIT_BRANCH =~ /^release-*/ && $CI_COMMIT_TITLE !~ /.*VALHALLA SKIP.*/` to global workflow configuration
 
 ```yml
 
 workflows:
-  if: '$CI_COMMIT_BRANCH =~ /^release-*/
+  - if: $CI_COMMIT_BRANCH =~ /^release-*/ && $CI_COMMIT_TITLE !~ /.*VALHALLA SKIP.*/
   
-release:
-  stage: 
-
+# add new stage
+stages:
+  - release
+  
+valhalla_release:
+  stage: release
+  image: logchange/valhalla:1.1.0
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    # we run the job only for branch with name release-
+    # and for commits that DOES NOT include VALHALLA SKIP
+    # valhalla during committing adds [VALHALLA SKIP] ad the end of commit msg
+    - if: $CI_COMMIT_BRANCH =~ /^release-*/ && $CI_COMMIT_TITLE !~ /.*VALHALLA SKIP.*/
 ```
