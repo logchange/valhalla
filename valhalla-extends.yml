@@ -1,9 +1,8 @@
 # example of inheritance of valhalla.yml
 commit_before_release:
   msg: ABC Releasing version {VERSION}
-  # watch out extending lists, because currently it will be merged together
-  # (first elements from extended, then from proper valhalla.yml)
-  # (maybe in future it will be overridden!)
+  # watch out extending lists, because currently it is overriding whole list
+  # because merging list could lead to problem (f.e. no ability to override existing elementos)
   before:
     - mkdir -p changelog/v{VERSION}
     - echo "ABC Super release description for tests" > changelog/v{VERSION}/version_summary.md
