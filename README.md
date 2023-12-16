@@ -23,14 +23,13 @@ saving time, and promoting compliance with established regulations.
 
 ### ⚙️ configuration
 
-- if using GitLab workflows
-  for `merge requests workflow` [(link)](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Workflows/MergeRequest-Pipelines.gitlab-ci.yml)
-  you have to add `if: '$CI_COMMIT_BRANCH =~ /^release-*/` to global workflow configuration
 - create `valhalla.yml` in your project (check out [examples](https://github.com/logchange/valhalla/tree/master/examples))
 ```yml
 # This file is used by valhalla tool to create release 🌌
 # Visit https://github.com/logchange/valhalla and leave a star 🌟
 # More info about configuration you can find https://github.com/logchange/valhalla#%EF%B8%8F-configuration ⬅️
+extends: # You can extend any file from URL! This helps keep configuration in one place!
+  - https://raw.githubusercontent.com/logchange/valhalla/master/valhalla-extends.yml
 git_host: gitlab # your project ci provider, supported [gitlab]  
 commit_before_release: # define actions which have to happen before release and output should be committed
   enabled: True # if this is True commands from before will be performed and committed to branch
@@ -82,6 +81,20 @@ merge_request:
    extensions like `release-2.10.4-RC`.
 2. Valhalla will do everything for you 🚀
 
+### inheritance
+
+To simplify managing multimple repositories, you can use `extends:` keyword.
+
+```yml
+extends:
+  - https://raw.githubusercontent.com/logchange/valhalla/master/valhalla.yml
+```
+
+You can point to any URL that is `valhalla.yml` and it will be loaded and then override by values from
+current file. Currently, you can only inherit once, co it means if you inherit from a file, that also contains 
+`extends` keyword, it won't be evaluated.
+
+
 ### 🖖 string predefined variables
 
 **Use `{}` to evaluate variable to value f.e. `{VERSION}`**
@@ -92,7 +105,9 @@ merge_request:
 
 ### 🦊 .gitlab-ci.yml
 
--   you have to add `if: '$CI_COMMIT_BRANCH =~ /^release-*/` to global workflow configuration
+- if using GitLab workflows
+  for `merge requests workflow` [(link)](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Workflows/MergeRequest-Pipelines.gitlab-ci.yml)
+  you have to add `if: '$CI_COMMIT_BRANCH =~ /^release-*/` to global workflow configuration
 
 ```yml
 
@@ -100,6 +115,6 @@ workflows:
   if: '$CI_COMMIT_BRANCH =~ /^release-*/
   
 release:
-  stage:
+  stage: 
 
 ```

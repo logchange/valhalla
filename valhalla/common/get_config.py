@@ -2,6 +2,7 @@ from typing import List
 from yaml import safe_load
 
 from valhalla.common.logger import info, error, warn
+from valhalla.extends.ValhallaExtends import ValhallaExtends
 
 
 class MergeRequestConfig:
@@ -90,7 +91,8 @@ class ReleaseConfig:
 
 
 class Config:
-    def __init__(self, git_host: str,
+    def __init__(self,
+                 git_host: str,
                  commit_before_release: CommitConfig,
                  release_config: ReleaseConfig,
                  commit_after_release: CommitConfig,
@@ -116,6 +118,10 @@ def get_config(path) -> Config:
         with open(path) as f:
             info(f"Trying to load config from: {path}")
             yml_dict = safe_load(f)
+
+            extends_list = get_from_dict(yml_dict, 'extends', False)
+            extends = ValhallaExtends(extends_list)
+            yml_dict = extends.merge(yml_dict)
 
             git_host = yml_dict['git_host']
 

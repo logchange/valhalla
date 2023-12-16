@@ -1,3 +1,8 @@
+# This file is used by valhalla tool to create release 🌌
+# Visit https://github.com/logchange/valhalla and leave a star 🌟
+# More info about configuration you can find https://github.com/logchange/valhalla#%EF%B8%8F-configuration ⬅️
+extends:
+  - https://raw.githubusercontent.com/logchange/valhalla/master/valhalla-extends.yml
 git_host: gitlab
 commit_before_release:
   enabled: True
