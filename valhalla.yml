@@ -3,6 +3,7 @@ commit_before_release:
   enabled: True
   username: Test1234
   email: test-valhalla@logchange.dev
+  msg: Releasing version {VERSION}
   before:
     - echo "test" > some_file4.md
     - mkdir -p changelog/v{VERSION}
@@ -18,3 +19,17 @@ release:
       - name: Docker Image
         url: https://dockerhub.com/q?={VERSION}
         link_type: image
+commit_after_release:
+  enabled: True
+  username: Test1234
+  email: test-valhalla@logchange.dev
+  msg: Preparation for next development cycle
+  before:
+    - echo "test" > prepare_next_iteration.md
+merge_request:
+  enabled: True
+  title: Releasing version {VERSION} and preparation for next development cycle
+  reviewers:
+    - peter.zmilczak
+    - some_uknownwnnaa
+

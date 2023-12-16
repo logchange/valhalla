@@ -7,11 +7,11 @@ class GitRepository:
     def __init__(self, git_username, git_email):
         self.repository = Repo.init(".")
 
-        if git_username is None or git_username == "":
+        if not git_username:
             info("Git username not set, using default valhalla-bot")
             git_username = "valhalla-bot"
 
-        if git_email is None or git_email == "":
+        if not git_email:
             info("Git email not set, using default valhalla-bot@logchange.dev")
             git_email = "valhalla-bot@logchange.dev"
 

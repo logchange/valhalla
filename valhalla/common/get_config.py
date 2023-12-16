@@ -4,11 +4,29 @@ from yaml import safe_load
 from valhalla.common.logger import info, error, warn
 
 
-class Commit:
-    def __init__(self, enabled: bool, git_username: str, git_email: str, before_commands: List[str]):
+class MergeRequestConfig:
+    def __init__(self, enabled: bool, title: str, description: str, reviewers: List[str]):
+        self.enabled = enabled
+        self.title = title
+        self.description = description
+        self.reviewers = reviewers
+
+    def __repr__(self):
+        return f"\n" \
+               f"   MergeRequestConfig( \n" \
+               f"     enabled={self.enabled} \n" \
+               f"     title={self.title} \n" \
+               f"     description={self.description} \n" \
+               f"     reviewers={self.reviewers} \n" \
+               f"   )"
+
+
+class CommitConfig:
+    def __init__(self, enabled: bool, git_username: str, git_email: str, msg: str, before_commands: List[str]):
         self.enabled = enabled
         self.git_username = git_username
         self.git_email = git_email
+        self.msg = msg
         self.before_commands = before_commands
 
     def __repr__(self):
@@ -72,20 +90,28 @@ class ReleaseConfig:
 
 
 class Config:
-    def __init__(self, git_host: str, commit_before_release: Commit, release_config: ReleaseConfig):
+    def __init__(self, git_host: str,
+                 commit_before_release: CommitConfig,
+                 release_config: ReleaseConfig,
+                 commit_after_release: CommitConfig,
+                 merge_request: MergeRequestConfig):
         self.git_host = git_host
         self.commit_before_release = commit_before_release
         self.release_config = release_config
+        self.commit_after_release = commit_after_release
+        self.merge_request = merge_request
 
     def __repr__(self):
         return f" Config( \n" \
                f"   git_host={self.git_host} \n" \
                f"   commit_before_release={self.commit_before_release} \n" \
                f"   release_config={self.release_config} \n" \
+               f"   commit_after_release={self.commit_after_release} \n" \
+               f"   merge_request={self.merge_request} \n" \
                f" )"
 
 
-def get_config(path):
+def get_config(path) -> Config:
     try:
         with open(path) as f:
             info(f"Trying to load config from: {path}")
@@ -93,13 +119,19 @@ def get_config(path):
 
             git_host = yml_dict['git_host']
 
-            commit_dict = yml_dict['commit_before_release']
-            commit = get_commit_part(commit_dict)
+            commit_before_release_dict = yml_dict['commit_before_release']
+            commit_before_release = get_commit_part(commit_before_release_dict)
 
             release_config_dict = yml_dict['release']
             release_config = get_release_config_part(release_config_dict)
 
-            config = Config(git_host, commit, release_config)
+            commit_after_release_dict = get_from_dict(yml_dict, 'commit_after_release', False)
+            commit_after_release = get_commit_part(commit_after_release_dict)
+
+            merge_request_dict = get_from_dict(yml_dict, 'merge_request', False)
+            merge_request = get_merge_request_part(merge_request_dict)
+
+            config = Config(git_host, commit_before_release, release_config, commit_after_release, merge_request)
 
             info("Loaded config: ")
             info(config)
@@ -110,12 +142,16 @@ def get_config(path):
         exit(-1)
 
 
-def get_commit_part(commit: dict) -> Commit:
-    enabled = get_from_dict(commit, 'enabled', True)
-    git_username = get_from_dict(commit, 'username', False)
-    git_email = get_from_dict(commit, 'email', False)
-    before_commands = get_from_dict(commit, 'before', False)
-    return Commit(str_to_bool(enabled), git_username, git_email, before_commands)
+def get_commit_part(commit_config_dict: dict) -> CommitConfig:
+    enabled = str_to_bool(get_from_dict(commit_config_dict, 'enabled', True))
+    commit_other_options_required = enabled
+
+    git_username = get_from_dict(commit_config_dict, 'username', False)
+    git_email = get_from_dict(commit_config_dict, 'email', False)
+    msg = get_from_dict(commit_config_dict, 'msg', commit_other_options_required)
+
+    before_commands = get_from_dict(commit_config_dict, 'before', commit_other_options_required)
+    return CommitConfig(enabled, git_username, git_email, msg, before_commands)
 
 
 def get_release_config_part(release_config_dict: dict) -> ReleaseConfig:
@@ -153,6 +189,17 @@ def get_release_assets_links_config_part(links_list_of_dicts: List[dict]) -> Lis
     return result
 
 
+def get_merge_request_part(merge_request_dict: dict) -> MergeRequestConfig:
+    enabled = str_to_bool(get_from_dict(merge_request_dict, 'enabled', True))
+    merge_request_other_options_required = enabled
+
+    title = get_from_dict(merge_request_dict, 'title', merge_request_other_options_required)
+    description = get_from_dict(merge_request_dict, 'description', False)
+
+    reviewers = get_from_dict(merge_request_dict, 'reviewers', False)
+    return MergeRequestConfig(enabled, title, description, reviewers)
+
+
 def str_to_bool(value: str) -> bool:
     if "True" or "true":
         return True
@@ -171,4 +218,5 @@ def get_from_dict(d: dict, key: str, required: bool):
             error(f"Missing required {key} in valhalla.yml!")
             exit(1)
         else:
+            info(f"Could not find optional filed: {key}")
             return None

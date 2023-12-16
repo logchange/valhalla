@@ -1,9 +1,10 @@
-from valhalla.ci_provider.get_token import get_token
-from valhalla.ci_provider.gitlab.release import ValhallaRelease
+from valhalla.ci_provider.get_token import get_valhalla_token
+from valhalla.ci_provider.gitlab.merge_request import GitLabValhallaMergeRequest
+from valhalla.ci_provider.gitlab.release import GitLabValhallaRelease
 from valhalla.commit import before
 from valhalla.ci_provider.gitlab.get_version import get_version_number_to_release
 from valhalla.commit.commit import GitRepository
-from valhalla.common.get_config import get_config
+from valhalla.common.get_config import get_config, Config, CommitConfig, MergeRequestConfig
 from valhalla.common.logger import info
 from valhalla.common.resolver import init_str_resolver
 from valhalla.release.assets import Assets
@@ -17,30 +18,48 @@ def start():
 
     init_str_resolver(version_to_release)
 
-    commit(config, version_to_release)
+    commit(config.commit_before_release)
 
     create_release(config, version_to_release)
+
+    commit(config.commit_after_release)
+
+    create_merge_request(config.merge_request)
+
+
+def create_merge_request(merge_request_config: MergeRequestConfig):
+    if merge_request_config is None:
+        info("merge_request not specified in valhalla.yml, skipping")
+        return
+    if merge_request_config.enabled:
+        info("Preparing to create merge request")
+
+        merge_request = GitLabValhallaMergeRequest()
+        merge_request.create(merge_request_config)
+    else:
+        info("merge_request.enabled is False in valhalla.yml, skipping")
 
 
 def create_release(config, version_to_release):
     info("Preparing to create release")
-    release = ValhallaRelease()
+    release = GitLabValhallaRelease()
     description = Description(config.release_config.description_config)
     assets = Assets(config.release_config.assets_config)
     release.create(version_to_release, description, assets)
     info("Finished creating release")
 
 
-def commit(config, version: str):
-    if config.commit.enabled:
+def commit(commit_config: CommitConfig):
+    if commit_config.enabled:
         info("Commit enabled is True so scripts, commit, push will be performed")
-        before.execute(config.commit.before_commands)
-        git = GitRepository(config.commit.git_username, config.commit.git_email)
-        commit_success = git.commit(f"Releasing version {version}")
+        token = get_valhalla_token()
+
+        before.execute(commit_config.before_commands)
+        git = GitRepository(commit_config.git_username, commit_config.git_email)
+        commit_success = git.commit(commit_config.msg)
 
         if commit_success:
             info("Commit successful, preparing to push")
-            token = get_token()
             git.push(token)
             info("Pushed successful!")
 
