@@ -1,11 +1,14 @@
 import subprocess
+from typing import List
 
 from valhalla.common.logger import error, info
+from valhalla.common.resolver import resolve
 
 
-def execute(commands: list[str]):
+def execute(commands: List[str]):
     try:
         for command in commands:
+            command = resolve(command)
             result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
             stdout = result.stdout
             stderr = result.stderr

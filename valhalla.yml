@@ -1,8 +1,20 @@
 git_host: gitlab
-project_name: valhalla
 commit:
   enabled: True
   username: Test1234
   email: test-valhalla@logchange.dev
   before:
-    - echo "test" > some_file3.md
+    - echo "test" > some_file4.md
+    - mkdir -p changelog/v{VERSION}
+    - echo "Super release description for tests" > changelog/v{VERSION}/version_summary.md
+release:
+  description:
+    from_command: "cat changelog/v{VERSION}/version_summary.md"
+  assets: # https://docs.gitlab.com/ee/api/releases/#create-a-release
+    links:
+      - name: Documentation
+        url: https://google.com/q?={VERSION}
+        link_type: other
+      - name: Docker Image
+        url: https://dockerhub.com/q?={VERSION}
+        link_type: image
