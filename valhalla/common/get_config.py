@@ -72,15 +72,15 @@ class ReleaseConfig:
 
 
 class Config:
-    def __init__(self, git_host: str, commit: Commit, release_config: ReleaseConfig):
+    def __init__(self, git_host: str, commit_before_release: Commit, release_config: ReleaseConfig):
         self.git_host = git_host
-        self.commit = commit
+        self.commit_before_release = commit_before_release
         self.release_config = release_config
 
     def __repr__(self):
         return f" Config( \n" \
                f"   git_host={self.git_host} \n" \
-               f"   commit={self.commit} \n" \
+               f"   commit_before_release={self.commit_before_release} \n" \
                f"   release_config={self.release_config} \n" \
                f" )"
 
@@ -93,7 +93,7 @@ def get_config(path):
 
             git_host = yml_dict['git_host']
 
-            commit_dict = yml_dict['commit']
+            commit_dict = yml_dict['commit_before_release']
             commit = get_commit_part(commit_dict)
 
             release_config_dict = yml_dict['release']
@@ -111,10 +111,10 @@ def get_config(path):
 
 
 def get_commit_part(commit: dict) -> Commit:
-    enabled = commit['enabled']
-    git_username = commit['username']
-    git_email = commit['email']
-    before_commands = commit['before']
+    enabled = get_from_dict(commit, 'enabled', True)
+    git_username = get_from_dict(commit, 'username', False)
+    git_email = get_from_dict(commit, 'email', False)
+    before_commands = get_from_dict(commit, 'before', False)
     return Commit(str_to_bool(enabled), git_username, git_email, before_commands)
 
 
@@ -160,3 +160,15 @@ def str_to_bool(value: str) -> bool:
         return False
     warn("Could not parse boolean value for input: " + value + " using False instead")
     return False
+
+
+def get_from_dict(d: dict, key: str, required: bool):
+    try:
+        return d[key]
+    except KeyError as e:
+        if required:
+            print(e)
+            error(f"Missing required {key} in valhalla.yml!")
+            exit(1)
+        else:
+            return None

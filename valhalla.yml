@@ -1,5 +1,5 @@
 git_host: gitlab
-commit:
+commit_before_release:
   enabled: True
   username: Test1234
   email: test-valhalla@logchange.dev
