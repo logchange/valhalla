@@ -1,0 +1,6 @@
+commit_before_release:
+  msg: ABC Releasing version {VERSION}
+  before:
+    - echo "ABC Super release description for tests" > changelog/v{VERSION}/version_summary.md
+merge_request:
+  title: ABC Releasing version {VERSION} and preparation for next development cycle
