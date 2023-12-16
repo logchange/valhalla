@@ -73,7 +73,8 @@ merge_request:
     - peter.zmilczak # usernames which will be reviews of created MR
     - some_unknown_nick # if username cannot be found you can check logs
 ```
-- Create access token and pass it to CI with variable `VALHALLA_TOKEN`
+- Create access token and pass it to CI as environment variable `VALHALLA_TOKEN`
+- Update or CI/CD scripts to use valhalla (see below for examples)
 
 ### 🔸 usage
 
@@ -88,3 +89,17 @@ merge_request:
 |  name   |                                description                                 |
 |:-------:|:--------------------------------------------------------------------------:|
 | VERSION | value extracted from branch name, for `release-1.2.14` it will be `1.2.14` |
+
+### 🦊 .gitlab-ci.yml
+
+-   you have to add `if: '$CI_COMMIT_BRANCH =~ /^release-*/` to global workflow configuration
+
+```yml
+
+workflows:
+  if: '$CI_COMMIT_BRANCH =~ /^release-*/
+  
+release:
+  stage:
+
+```
