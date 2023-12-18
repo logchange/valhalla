@@ -5,11 +5,12 @@ from yaml import safe_load
 
 from valhalla.common.logger import info, error
 from valhalla.extends.merge_dicts import merge
+from valhalla.common.resolver import resolve
 
 
 def get_from_url(url):
     result = ""
-    data = urllib.request.urlopen(url)
+    data = urllib.request.urlopen(resolve(url))
     for line in data:
         str_line = line.decode("UTF-8")
         result += str_line
