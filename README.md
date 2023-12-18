@@ -133,6 +133,6 @@ valhalla_release:
       when: never
     # we run the job only for branch with name release-
     # and for commits that DOES NOT include VALHALLA SKIP
-    # valhalla during committing adds [VALHALLA SKIP] ad the end of commit msg
+    # valhalla during committing adds [VALHALLA SKIP] at the end of commit msg
     - if: $CI_COMMIT_BRANCH =~ /^release-*/ && $CI_COMMIT_TITLE !~ /.*VALHALLA SKIP.*/
 ```
