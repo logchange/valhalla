@@ -1,6 +1,7 @@
 from git import Repo
 
 from valhalla.common.logger import info, warn
+from valhalla.common.resolver import resolve
 
 
 class GitRepository:
@@ -57,7 +58,7 @@ class GitRepository:
             return False
 
         msg += "[VALHALLA SKIP]"
-        commit = self.repository.index.commit(msg)
+        commit = self.repository.index.commit(resolve(msg))
         info(f"Created commit: {commit}")
         self.status()
         return True
