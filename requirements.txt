@@ -1,3 +1,4 @@
 PyYAML~=6.0.1
 GitPython~=3.1.40
 python-gitlab~=4.2.0
+requests~=2.31.0
