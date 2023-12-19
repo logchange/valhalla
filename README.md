@@ -104,9 +104,10 @@ TODO
 
 **Use `{}` to evaluate variable to value f.e. `{VERSION}`**
 
-|  name   |                                description                                 |
-|:-------:|:--------------------------------------------------------------------------:|
-| VERSION | value extracted from branch name, for `release-1.2.14` it will be `1.2.14` |
+|      name      |                                description                                 |
+|:--------------:|:--------------------------------------------------------------------------:|
+| VERSION        | value extracted from branch name, for `release-1.2.14` it will be `1.2.14` |
+| VALHALLA_TOKEN | token passed to CI runner which execute this job                           |
 
 ### 🦊 .gitlab-ci.yml
 
