@@ -164,7 +164,7 @@ def get_release_config_part(release_config_dict: dict) -> ReleaseConfig:
     description_dict = release_config_dict['description']
     description = get_release_description_config_part(description_dict)
 
-    assets_dict = release_config_dict['assets']
+    assets_dict = get_from_dict(release_config_dict, 'assets', False)
     assets = get_release_assets_config_part(assets_dict)
 
     return ReleaseConfig(description, assets)
@@ -184,6 +184,9 @@ def get_release_assets_config_part(assets_dict: dict) -> ReleaseAssetsConfig:
 
 def get_release_assets_links_config_part(links_list_of_dicts: List[dict]) -> List[ReleaseAssetsLinkConfig]:
     result = []
+
+    if links_list_of_dicts is None:
+        return result
 
     for link_dict in links_list_of_dicts:
         name = link_dict['name']
