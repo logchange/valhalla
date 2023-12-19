@@ -1,4 +1,7 @@
 # example of inheritance of valhalla.yml
+variables:
+  PARENT_VARIABLE: Parent variables are the best!
+  PARENT_VARIABLE_OVERRIDE: It will be override!
 commit_before_release:
   msg: ABC Releasing version {VERSION}
   # watch out extending lists, because currently it is overriding whole list
@@ -8,4 +11,4 @@ commit_before_release:
     - echo "ABC Super release description for tests" > changelog/v{VERSION}/version_summary.md
 merge_request:
   title: ABC Releasing version {VERSION} and preparation for next development cycle
-  description: some super best mr description, that wont be overridden!
+  description: some super best mr description, that wont be overridden! {PARENT_VARIABLE} {PARENT_VARIABLE_OVERRIDE}
