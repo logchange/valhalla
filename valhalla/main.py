@@ -15,14 +15,15 @@ def start():
     print(f'Release the Valhalla!')
     version_to_release = get_version_number_to_release()
     config = get_config("./valhalla.yml")
+    token = get_valhalla_token()
 
-    init_str_resolver(version_to_release)
+    init_str_resolver(version_to_release, token)
 
     commit(config.commit_before_release)
 
     create_release(config, version_to_release)
 
-    commit(config.commit_after_release)
+    commit(config.commit_after_release, token)
 
     create_merge_request(config.merge_request)
 
@@ -49,10 +50,9 @@ def create_release(config, version_to_release):
     info("Finished creating release")
 
 
-def commit(commit_config: CommitConfig):
+def commit(commit_config: CommitConfig, token: str):
     if commit_config.enabled:
         info("Commit enabled is True so scripts, commit, push will be performed")
-        token = get_valhalla_token()
 
         before.execute(commit_config.before_commands)
         git = GitRepository(commit_config.git_username, commit_config.git_email)
