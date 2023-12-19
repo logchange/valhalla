@@ -32,6 +32,8 @@ saving time, and promoting compliance with established regulations.
 # More info about configuration you can find https://github.com/logchange/valhalla#%EF%B8%8F-configuration ⬅️
 extends: # You can extend any file from URL! This helps keep configuration in one place!
   - https://raw.githubusercontent.com/logchange/valhalla/master/valhalla-extends.yml
+variables: # Define custom variables which can be used in any string with {}
+  MY_VARIABLE: Some value
 git_host: gitlab # your project ci provider, supported [gitlab]  
 commit_before_release: # define actions which have to happen before release and output should be committed
   enabled: True # if this is True commands from before will be performed and committed to branch
