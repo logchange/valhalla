@@ -20,7 +20,7 @@ def start():
 
     config = get_config("./valhalla.yml")
 
-    commit(config.commit_before_release)
+    commit(config.commit_before_release, token)
 
     create_release(config, version_to_release)
 
