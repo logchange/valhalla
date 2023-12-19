@@ -85,7 +85,7 @@ merge_request:
    extensions like `release-2.10.4-RC`.
 2. Valhalla will do everything for you 🚀
 
-### inheritance
+### 👨🏻‍👦🏻 inheritance
 
 To simplify managing multimple repositories, you can use `extends:` keyword.
 
