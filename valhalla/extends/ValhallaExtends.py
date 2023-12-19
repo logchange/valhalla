@@ -1,6 +1,6 @@
 from typing import List
 
-import urllib.request
+import requests
 from yaml import safe_load
 
 from valhalla.common.logger import info, error
@@ -10,10 +10,9 @@ from valhalla.common.resolver import resolve
 
 def get_from_url(url):
     result = ""
-    data = urllib.request.urlopen(resolve(url))
+    data = requests.get(resolve(url)).text
     for line in data:
-        str_line = line.decode("UTF-8")
-        result += str_line
+        result += line
     info("Loaded from ULR")
     info("===========================================")
     print(result)
