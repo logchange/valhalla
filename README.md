@@ -100,7 +100,23 @@ current file. Currently, you can only inherit once and from one URL, so it means
 
 TODO
 
-### 🖖 string predefined variables
+### 🏭 custom variables
+
+You can define custom variables which can be used by defining them in strings using `{}`
+
+```yml
+variables:
+  MY_VARIABLE: Some value
+
+merge_request:
+  enabled: True
+  title: Releasing version {VERSION} and preparation for next development cycle {MY_VARIABLE}
+```
+
+**It is really useful with `extends` mechanism, f.e. define general template with `variables`
+which will be overriden in child `valhalla.yml`.**
+
+### 🖖 predefined variables
 
 **Use `{}` to evaluate variable to value f.e. `{VERSION}`**
 

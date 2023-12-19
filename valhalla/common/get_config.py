@@ -92,11 +92,13 @@ class ReleaseConfig:
 
 class Config:
     def __init__(self,
+                 variables: dict,
                  git_host: str,
                  commit_before_release: CommitConfig,
                  release_config: ReleaseConfig,
                  commit_after_release: CommitConfig,
                  merge_request: MergeRequestConfig):
+        self.variables = variables
         self.git_host = git_host
         self.commit_before_release = commit_before_release
         self.release_config = release_config
@@ -105,6 +107,7 @@ class Config:
 
     def __repr__(self):
         return f" Config( \n" \
+               f"   variables={self.variables} \n" \
                f"   git_host={self.git_host} \n" \
                f"   commit_before_release={self.commit_before_release} \n" \
                f"   release_config={self.release_config} \n" \
@@ -123,6 +126,8 @@ def get_config(path) -> Config:
             extends = ValhallaExtends(extends_list)
             yml_dict = extends.merge(yml_dict)
 
+            variables = get_from_dict(yml_dict, 'variables', False)
+
             git_host = yml_dict['git_host']
 
             commit_before_release_dict = yml_dict['commit_before_release']
@@ -137,7 +142,14 @@ def get_config(path) -> Config:
             merge_request_dict = get_from_dict(yml_dict, 'merge_request', False)
             merge_request = get_merge_request_part(merge_request_dict)
 
-            config = Config(git_host, commit_before_release, release_config, commit_after_release, merge_request)
+            config = Config(
+                variables,
+                git_host,
+                commit_before_release,
+                release_config,
+                commit_after_release,
+                merge_request
+            )
 
             info("Loaded config: ")
             info(config)

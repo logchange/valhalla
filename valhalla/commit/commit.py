@@ -59,7 +59,7 @@ class GitRepository:
             warn("There is noting to commit!")
             return False
 
-        msg += "[VALHALLA SKIP]"
+        msg += " [VALHALLA SKIP]"
         commit = self.repository.index.commit(resolve(msg))
         info(f"Created commit: {commit}")
         self.status()
@@ -86,8 +86,8 @@ class GitRepository:
 #   File "/root/.local/lib/python3.11/site-packages/git/refs/symbolic.py", line 357, in _get_reference
 #     raise TypeError("%s is a detached symbolic reference as it points to %r" % (self, sha))
 # TypeError: HEAD is a detached symbolic reference as it points to 'e0b9e17c22b8a1f7fabe7e584bbee8b292d8d50d'
-        #branch = self.repository.active_branch
-        branch = os.environ.get('CI_COMMIT_BRANCH')
+        branch = self.repository.active_branch
+        #branch = os.environ.get('CI_COMMIT_BRANCH')
 
         info(f"Current branch: {branch}")
 

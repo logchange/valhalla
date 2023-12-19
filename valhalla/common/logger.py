@@ -1,5 +1,16 @@
+TOKEN = "not_set"
+
+
+# Allows to hide sensitive data
+def init_logger(token: str):
+    global TOKEN
+    TOKEN = token
+
+
 def log_message(level, msg):
+    global TOKEN
     msg = str(msg)
+    msg = msg.replace(TOKEN, "*" * len(TOKEN))
     lines = msg.split('\n')
     for line in lines:
         print(f"[{level}] {line}")

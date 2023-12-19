@@ -5,8 +5,8 @@ from valhalla.commit import before
 from valhalla.ci_provider.gitlab.get_version import get_version_number_to_release
 from valhalla.commit.commit import GitRepository
 from valhalla.common.get_config import get_config, Config, CommitConfig, MergeRequestConfig
-from valhalla.common.logger import info
-from valhalla.common.resolver import init_str_resolver
+from valhalla.common.logger import info, init_logger
+from valhalla.common.resolver import init_str_resolver, init_str_resolver_custom_variables
 from valhalla.release.assets import Assets
 from valhalla.release.description import Description
 
@@ -16,9 +16,12 @@ def start():
 
     version_to_release = get_version_number_to_release()
     token = get_valhalla_token()
+    init_logger(token)
+
     init_str_resolver(version_to_release, token)
 
     config = get_config("./valhalla.yml")
+    init_str_resolver_custom_variables(config.variables)
 
     commit(config.commit_before_release, token)
 
