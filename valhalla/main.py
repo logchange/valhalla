@@ -13,11 +13,12 @@ from valhalla.release.description import Description
 
 def start():
     print(f'Release the Valhalla!')
-    version_to_release = get_version_number_to_release()
-    config = get_config("./valhalla.yml")
-    token = get_valhalla_token()
 
+    version_to_release = get_version_number_to_release()
+    token = get_valhalla_token()
     init_str_resolver(version_to_release, token)
+
+    config = get_config("./valhalla.yml")
 
     commit(config.commit_before_release)
 
