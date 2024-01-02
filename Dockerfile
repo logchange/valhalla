@@ -3,6 +3,7 @@ FROM alpine:3
 RUN apk --update --no-cache add  \
     bash  \
     git  \
+    git-lfs \
     python3 \
     py3-pip \
     maven  \
