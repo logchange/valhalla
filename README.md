@@ -78,7 +78,7 @@ merge_request:
 ```
 - Create access token and pass it to CI as environment variable `VALHALLA_TOKEN`
 - Update or CI/CD scripts to use valhalla (see below for examples)
-- Update your `.gitignore` ! see: 
+- Update your `.gitignore` ! see [link](#-gitignore)
 
 ### 🔸 usage
 
