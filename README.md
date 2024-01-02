@@ -78,6 +78,7 @@ merge_request:
 ```
 - Create access token and pass it to CI as environment variable `VALHALLA_TOKEN`
 - Update or CI/CD scripts to use valhalla (see below for examples)
+- Update your `.gitignore` ! see: 
 
 ### 🔸 usage
 
@@ -154,4 +155,12 @@ valhalla_release:
     # and for commits that DOES NOT include VALHALLA SKIP
     # valhalla during committing adds [VALHALLA SKIP] at the end of commit msg
     - if: $CI_COMMIT_BRANCH =~ /^release-*/ && $CI_COMMIT_TITLE !~ /.*VALHALLA SKIP.*/
+```
+### 🚧 .gitignore
+
+Add to your `.gitignore` following rules, please create issue if valhalla commits to much files!
+
+```
+### Valhalla ###
+.m2/
 ```
