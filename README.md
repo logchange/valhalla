@@ -144,7 +144,7 @@ stages:
   
 valhalla_release:
   stage: release
-  image: logchange/valhalla:1.1.0
+  image: logchange/valhalla:1.2.1
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: never
