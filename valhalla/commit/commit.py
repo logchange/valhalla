@@ -43,9 +43,12 @@ class GitRepository:
         if add:
             untracked = self.repository.untracked_files
             for f in untracked:
-                self.repository.git.add(f)
-                info(f"Untracked file: {f} added to stage")
-                new_changes_in_stage = True
+                if self.__is_ignored(f):
+                    warn(f"Skipping untracked file: {f} check your .gitignore! see: https://github.com/logchange/valhalla/blob/master/README.md#-gitignore")
+                else:
+                    self.repository.git.add(f)
+                    info(f"Untracked file: {f} added to stage")
+                    new_changes_in_stage = True
         else:
             info(f"add={add}, skipping adding untracked files")
 
@@ -67,27 +70,7 @@ class GitRepository:
 
     def push(self, token):
         info("Preparing to push")
-
-        #Traceback (most recent call last):
-#   File "<frozen runpy>", line 198, in _run_module_as_main
-#   File "<frozen runpy>", line 88, in _run_code
-#   File "/opt/valhalla/__main__.py", line 4, in <module>
-#     start()
-#   File "/opt/valhalla/valhalla/main.py", line 23, in start
-#     commit(config.commit_before_release, token)
-#   File "/opt/valhalla/valhalla/main.py", line 64, in commit
-#     git.push(token)
-#   File "/opt/valhalla/valhalla/commit/commit.py", line 69, in push
-#     branch = self.repository.active_branch
-#              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-#   File "/root/.local/lib/python3.11/site-packages/git/repo/base.py", line 897, in active_branch
-#     return self.head.reference
-#            ^^^^^^^^^^^^^^^^^^^
-#   File "/root/.local/lib/python3.11/site-packages/git/refs/symbolic.py", line 357, in _get_reference
-#     raise TypeError("%s is a detached symbolic reference as it points to %r" % (self, sha))
-# TypeError: HEAD is a detached symbolic reference as it points to 'e0b9e17c22b8a1f7fabe7e584bbee8b292d8d50d'
         branch = self.repository.active_branch
-        #branch = os.environ.get('CI_COMMIT_BRANCH')
 
         info(f"Current branch: {branch}")
 
@@ -104,3 +87,8 @@ class GitRepository:
         push_url = "https://{}:{}@{}".format("valhalla-bot", token, trimmed_url)
         info(f"push_url: {push_url}")
         return push_url
+    
+    def __is_ignored(self, file_path: str) -> bool:
+        if file_path.startswith(".m2/"):
+            return True
+        return False
