@@ -1,5 +1,13 @@
 FROM alpine:3
 
+# Labels.
+LABEL org.opencontainers.image.authors='peter.zmilczak@gmail.com' \
+      org.opencontainers.image.url='https://github.com/logchange/valhalla' \
+      org.opencontainers.image.documentation='https://github.com/logchange/valhalla/blob/master/README.md' \
+      org.opencontainers.image.source='https://github.com/logchange/valhalla' \
+      org.opencontainers.image.vendor='The logchange Community' \
+      org.opencontainers.image.licenses='Apache-2.0'
+
 RUN apk --update --no-cache add  \
     bash  \
     git  \

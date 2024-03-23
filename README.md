@@ -40,10 +40,10 @@ commit_before_release: # define actions which have to happen before release and 
   username: Test1234 # git config username
   email: test-valhalla@logchange.dev # git config email
   msg: Releasing version {VERSION} # commit message, you can use string predefined variables
-  before: # list of bash commands, you can use string predefined variables
+  before: # list of bash commands, you can use string predefined variables, custom variables or system environment variables!
     - echo "test" > some_file4.md
     - mkdir -p changelog/v{VERSION}
-    - echo "Super release description for tests" > changelog/v{VERSION}/version_summary.md
+    - echo "Super release description for tests generated at {CI_COMMIT_TIMESTAMP}" > changelog/v{VERSION}/version_summary.md
 # definition of release which will be created
 release:
   description:
@@ -128,6 +128,14 @@ which will be overriden in child `valhalla.yml`.**
 | `VERSION`        | value extracted from branch name, for `release-1.2.14` it will be `1.2.14` |
 | `VALHALLA_TOKEN` | token passed to CI runner which execute this job                           |
 
+### 🐛 Environment variables
+
+Valhalla allows you to use any variable defined in your environment system, it is useful f.e when you
+are using GitLab CI/CD and you want to use [GitLab CI/CD predefined variables](https://docs.gitlab.com/ee/ci/variables/predefined_variables.html)
+in your `valhalla.yml`.
+
+**Use `{}` to evaluate variable to value f.e. `{HOME}`**
+
 ### 🦊 .gitlab-ci.yml
 
 - if using GitLab workflows
@@ -136,16 +144,23 @@ which will be overriden in child `valhalla.yml`.**
 
 ```yml
 
+# Modify your workflow rules to include rule to start pipeline for branch starting with name 
+# release- and exclude commits with VALHALLA SKIP (when valhalla commits files we don't want to start pipeline again)
 workflows:
+  # .... your standard workflows here
   - if: $CI_COMMIT_BRANCH =~ /^release-*/ && $CI_COMMIT_TITLE !~ /.*VALHALLA SKIP.*/
   
 # add new stage
 stages:
+  # .... your standard stages here
   - release
   
 valhalla_release:
   stage: release
-  image: logchange/valhalla:1.2.1
+  image: logchange/valhalla:1.3.0
+  # Prevent from fetching artifacts because it is a problem during committing all files (git add .)
+  # https://docs.gitlab.com/ee/ci/jobs/job_artifacts.html#prevent-a-job-from-fetching-artifacts
+  dependencies: []
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: never
@@ -158,7 +173,12 @@ valhalla_release:
 ```
 ### 🚧 .gitignore
 
-Add to your `.gitignore` following rules, please create issue if valhalla commits to much files!
+Add to your `.gitignore` following rules, please create issue if valhalla commits to many files!
+(For GitLab CI/CD add `dependencies: []` which will prevent from committing generated files)
+
+It is important to modify your `.gitignore` when valhalla during `commit_before_release` or 
+`commit_after_release` phase generates files which you don't want to commit (f.e. maven release plugin or 
+maven version plugin generates `pom.xml` backup - for mvn version you can also use `-DgenerateBackupPoms=false`)
 
 ```
 ### Valhalla ###
