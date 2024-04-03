@@ -25,7 +25,9 @@ saving time, and promoting compliance with established regulations.
 
 ### ⚙️ configuration
 
-- create `valhalla.yml` in your project (check out [examples](https://github.com/logchange/valhalla/tree/master/examples))
+- create `valhalla.yml` in your project (check
+  out [examples](https://github.com/logchange/valhalla/tree/master/examples))
+
 ```yml
 # This file is used by valhalla tool to create release 🌌
 # Visit https://github.com/logchange/valhalla and leave a star 🌟
@@ -68,7 +70,7 @@ commit_after_release: # define actions which have to happen after release and ou
 
 # define merge request from release breach to your default 
 # branch with changes from commit_before_release and commit_after_release
-merge_request: 
+merge_request:
   enabled: True # if this is True merge request will be created
   title: Releasing version {VERSION} and preparation for next development cycle # you can use string predefined variables
   description: Hello world! I have just released {VERSION} # optional filed, you can use string predefined variables
@@ -76,6 +78,7 @@ merge_request:
     - peter.zmilczak # usernames which will be reviews of created MR
     - some_unknown_nick # if username cannot be found you can check logs
 ```
+
 - Create access token and pass it to CI as environment variable `VALHALLA_TOKEN`
 - Update or CI/CD scripts to use valhalla (see below for examples)
 - Update your `.gitignore` ! see [link](#-gitignore)
@@ -96,7 +99,8 @@ extends:
 ```
 
 You can point to any URL that is `valhalla.yml` format, and it will be loaded and then override by values from
-current file. Currently, you can only inherit once and from one URL, so it means if you inherit from a file, that also contains 
+current file. Currently, you can only inherit once and from one URL, so it means if you inherit from a file, that also
+contains
 `extends` keyword, it won't be evaluated.
 
 **Proxy**
@@ -123,15 +127,17 @@ which will be overriden in child `valhalla.yml`.**
 
 **Use `{}` to evaluate variable to value f.e. `{VERSION}`**
 
-|        name      |                                description                                 |
-|:----------------:|:--------------------------------------------------------------------------:|
-| `VERSION`        | value extracted from branch name, for `release-1.2.14` it will be `1.2.14` |
-| `VALHALLA_TOKEN` | token passed to CI runner which execute this job                           |
+|       name       |                                                                                                      description                                                                                                      |
+|:----------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|    `VERSION`     |                                                                      value extracted from branch name, for `release-1.2.14` it will be `1.2.14`                                                                       |
+|  `VERSION_SLUG`  | value extracted from branch name and with everything except 0-9 and a-z replaced with -. No leading / trailing -, <br/>for `release-1.2.14` it will be `1-2-14`. Use in URLs, host names, domain names and file names |
+| `VALHALLA_TOKEN` |                                                                                   token passed to CI runner which execute this job                                                                                    |
 
 ### 🐛 Environment variables
 
 Valhalla allows you to use any variable defined in your environment system, it is useful f.e when you
-are using GitLab CI/CD and you want to use [GitLab CI/CD predefined variables](https://docs.gitlab.com/ee/ci/variables/predefined_variables.html)
+are using GitLab CI/CD and you want to
+use [GitLab CI/CD predefined variables](https://docs.gitlab.com/ee/ci/variables/predefined_variables.html)
 in your `valhalla.yml`.
 
 **Use `{}` to evaluate variable to value f.e. `{HOME}`**
@@ -140,7 +146,8 @@ in your `valhalla.yml`.
 
 - if using GitLab workflows
   for `merge requests workflow` [(link)](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Workflows/MergeRequest-Pipelines.gitlab-ci.yml)
-  you have to add `if: $CI_COMMIT_BRANCH =~ /^release-*/ && $CI_COMMIT_TITLE !~ /.*VALHALLA SKIP.*/` to global workflow configuration
+  you have to add `if: $CI_COMMIT_BRANCH =~ /^release-*/ && $CI_COMMIT_TITLE !~ /.*VALHALLA SKIP.*/` to global workflow
+  configuration
 
 ```yml
 
@@ -149,18 +156,18 @@ in your `valhalla.yml`.
 workflows:
   # .... your standard workflows here
   - if: $CI_COMMIT_BRANCH =~ /^release-*/ && $CI_COMMIT_TITLE !~ /.*VALHALLA SKIP.*/
-  
+
 # add new stage
 stages:
   # .... your standard stages here
   - release
-  
+
 valhalla_release:
   stage: release
   image: logchange/valhalla:1.3.0
   # Prevent from fetching artifacts because it is a problem during committing all files (git add .)
   # https://docs.gitlab.com/ee/ci/jobs/job_artifacts.html#prevent-a-job-from-fetching-artifacts
-  dependencies: []
+  dependencies: [ ]
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: never
@@ -171,13 +178,14 @@ valhalla_release:
     # valhalla during committing adds [VALHALLA SKIP] at the end of commit msg
     - if: $CI_COMMIT_BRANCH =~ /^release-*/ && $CI_COMMIT_TITLE !~ /.*VALHALLA SKIP.*/
 ```
+
 ### 🚧 .gitignore
 
 Add to your `.gitignore` following rules, please create issue if valhalla commits to many files!
 (For GitLab CI/CD add `dependencies: []` which will prevent from committing generated files)
 
-It is important to modify your `.gitignore` when valhalla during `commit_before_release` or 
-`commit_after_release` phase generates files which you don't want to commit (f.e. maven release plugin or 
+It is important to modify your `.gitignore` when valhalla during `commit_before_release` or
+`commit_after_release` phase generates files which you don't want to commit (f.e. maven release plugin or
 maven version plugin generates `pom.xml` backup - for mvn version you can also use `-DgenerateBackupPoms=false`)
 
 ```

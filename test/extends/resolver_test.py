@@ -18,6 +18,17 @@ class TestStringResolver(unittest.TestCase):
         # then:
         self.assertEqual("Testing 1.0", resolved_string)
 
+    def test_resolve_predefined_version_slug(self):
+        # given:
+        init_str_resolver("1.0.0", "token123")
+        init_str_resolver_custom_variables({"CUSTOM_VAR": "value123"})
+
+        # when:
+        resolved_string = resolve("some_file_{VERSION_SLUG}.pdf")
+
+        # then:
+        self.assertEqual("some_file_1-0-0.pdf", resolved_string)
+
     def test_resolve_custom_variables(self):
         # given:
         init_str_resolver("1.0", "token123")

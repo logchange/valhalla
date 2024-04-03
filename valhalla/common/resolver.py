@@ -1,16 +1,20 @@
 import os
+import re
 
 from valhalla.common.logger import info, error
 
 VERSION = "not_set"
+VERSION_SLUG = "not_set"
 VALHALLA_TOKEN = "not_set"
 CUSTOM_VARIABLES_DICT = dict()
 
 
 def init_str_resolver(version: str, token: str):
     global VERSION
+    global VERSION_SLUG
     global VALHALLA_TOKEN
     VERSION = version
+    VERSION_SLUG = __get_slug(version)
     VALHALLA_TOKEN = token
 
 
@@ -38,9 +42,11 @@ def resolve(string: str):
 
 def __resolve_predefined(string: str):
     global VERSION
+    global VERSION_SLUG
     global VALHALLA_TOKEN
 
     string = string.replace("{VERSION}", VERSION)
+    string = string.replace("{VERSION_SLUG}", VERSION_SLUG)
     string = string.replace("{VALHALLA_TOKEN}", VALHALLA_TOKEN)
 
     return string
@@ -60,3 +66,9 @@ def __resolve_from_env(string: str):
     for env_var in os.environ:
         string = string.replace('{' + env_var + '}', os.environ.get(env_var, ''))
     return string
+
+
+def __get_slug(version):
+    slug = re.sub(r'[^0-9a-zA-Z]+', '-', version).lower()
+    slug = slug.strip('-')
+    return slug
