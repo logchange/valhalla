@@ -21,18 +21,24 @@ class GitLabValhallaMergeRequest:
         self.project = self.gl.projects.get(get_project_id(), lazy=True)
 
     def create(self, merge_request_config: MergeRequestConfig):
-        branch = os.environ.get('CI_COMMIT_BRANCH')
-        default_branch = os.environ.get('CI_DEFAULT_BRANCH')
+        source_branch = os.environ.get('CI_COMMIT_BRANCH')
 
-        info(f"Creating merge request from {branch} to {default_branch}")
+        if merge_request_config.target_branch:
+            info("Target branch for merge request:")
+            target_branch = resolve(merge_request_config.target_branch)
+        else:
+            info("target_branch not set, using default instead")
+            target_branch = os.environ.get('CI_DEFAULT_BRANCH')
+
+        info(f"Creating merge request from {source_branch} to {target_branch}")
 
         if not merge_request_config.description:
             info("merge_request.description not specified, using default")
 
         mr = self.project.mergerequests.create(
             {
-                'source_branch': branch,
-                'target_branch': default_branch,
+                'source_branch': source_branch,
+                'target_branch': target_branch,
                 'title': resolve(merge_request_config.title),
                 'description': resolve(get_description(merge_request_config.description)),
                 'remove_source_branch': True,
