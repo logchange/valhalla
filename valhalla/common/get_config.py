@@ -6,8 +6,9 @@ from valhalla.extends.ValhallaExtends import ValhallaExtends
 
 
 class MergeRequestConfig:
-    def __init__(self, enabled: bool, title: str, description: str, reviewers: List[str]):
+    def __init__(self, enabled: bool, target_branch: str, title: str, description: str, reviewers: List[str]):
         self.enabled = enabled
+        self.target_branch = target_branch
         self.title = title
         self.description = description
         self.reviewers = reviewers
@@ -16,6 +17,7 @@ class MergeRequestConfig:
         return f"\n" \
                f"   MergeRequestConfig( \n" \
                f"     enabled={self.enabled} \n" \
+               f"     target_branch={self.target_branch} \n" \
                f"     title={self.title} \n" \
                f"     description={self.description} \n" \
                f"     reviewers={self.reviewers} \n" \
@@ -217,11 +219,13 @@ def get_merge_request_part(merge_request_dict: dict) -> MergeRequestConfig:
     enabled = str_to_bool(get_from_dict(merge_request_dict, 'enabled', True))
     merge_request_other_options_required = enabled
 
+    target_branch = get_from_dict(merge_request_dict, 'target_branch', False)
+
     title = get_from_dict(merge_request_dict, 'title', merge_request_other_options_required)
     description = get_from_dict(merge_request_dict, 'description', False)
 
     reviewers = get_from_dict(merge_request_dict, 'reviewers', False)
-    return MergeRequestConfig(enabled, title, description, reviewers)
+    return MergeRequestConfig(enabled, target_branch, title, description, reviewers)
 
 
 def str_to_bool(value: str) -> bool:

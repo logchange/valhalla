@@ -32,6 +32,7 @@ def resolve(string: str):
         error("There is bug in valhalla! Please report it here: https://github.com/logchange/valhalla/issues")
         exit(1)
 
+    # hierarchy
     string = __resolve_predefined(string)
     string = __resolve_custom_variables(string)
     string = __resolve_from_env(string)

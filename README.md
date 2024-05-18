@@ -72,6 +72,7 @@ commit_after_release: # define actions which have to happen after release and ou
 # branch with changes from commit_before_release and commit_after_release
 merge_request:
   enabled: True # if this is True merge request will be created
+  target_branch: hotfix-{VERSION} # optional property (default branch if empty) defining target branch for merge/pull request. Supports regexp
   title: Releasing version {VERSION} and preparation for next development cycle # you can use string predefined variables
   description: Hello world! I have just released {VERSION} # optional filed, you can use string predefined variables
   reviewers:
@@ -107,6 +108,30 @@ contains
 
 TODO
 
+## 🏴󠁣󠁤󠁥󠁱󠁿 variables
+
+**Use `{}` to evaluate variable to value f.e. `{FOOBAR}`**
+
+**hierarchy (from most important):**
+- predefined variables
+- custom variables
+- environment variables
+
+So, if there is predefined variable, you cannot override it or if same variable exists in environment,
+the value always will be as in predefined. If you define your custom variable and the same exists in environment,
+the value will be as defined by you. This hierarchy protects valhalla from errors and gives ability to extends
+and override values in custom use cases.
+
+### 🖖 predefined variables
+
+**Use `{}` to evaluate variable to value f.e. `{VERSION}`**
+
+|       name       |                                                                                                      description                                                                                                      |
+|:----------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|    `VERSION`     |                                                                      value extracted from branch name, for `release-1.2.14` it will be `1.2.14`                                                                       |
+|  `VERSION_SLUG`  | value extracted from branch name and with everything except 0-9 and a-z replaced with -. No leading / trailing -, <br/>for `release-1.2.14` it will be `1-2-14`. Use in URLs, host names, domain names and file names |
+| `VALHALLA_TOKEN` |                                                                                   token passed to CI runner which execute this job                                                                                    |
+
 ### 🏭 custom variables
 
 You can define custom variables which can be used by defining them in strings using `{}`
@@ -123,17 +148,8 @@ merge_request:
 **It is really useful with `extends` mechanism, f.e. define general template with `variables`
 which will be overriden in child `valhalla.yml`.**
 
-### 🖖 predefined variables
 
-**Use `{}` to evaluate variable to value f.e. `{VERSION}`**
-
-|       name       |                                                                                                      description                                                                                                      |
-|:----------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|    `VERSION`     |                                                                      value extracted from branch name, for `release-1.2.14` it will be `1.2.14`                                                                       |
-|  `VERSION_SLUG`  | value extracted from branch name and with everything except 0-9 and a-z replaced with -. No leading / trailing -, <br/>for `release-1.2.14` it will be `1-2-14`. Use in URLs, host names, domain names and file names |
-| `VALHALLA_TOKEN` |                                                                                   token passed to CI runner which execute this job                                                                                    |
-
-### 🐛 Environment variables
+### 🐛 environment variables
 
 Valhalla allows you to use any variable defined in your environment system, it is useful f.e when you
 are using GitLab CI/CD and you want to
