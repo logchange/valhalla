@@ -29,6 +29,8 @@ class VersionToRelease:
 
 def get_release_kinds(path: str) -> List[ReleaseKind]:
     info(f"Searching for valhalla*.yml files in: {path}")
+    info(f"Current pwd: {os.getcwd()}")
+
     pattern = re.compile(r'valhalla(.*)\.yml')
     release_kinds = []
 
