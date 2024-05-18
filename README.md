@@ -104,15 +104,33 @@ current file. Currently, you can only inherit once and from one URL, so it means
 contains
 `extends` keyword, it won't be evaluated.
 
-**Proxy**
+## 🔀 many use cases at once! (different release kinds)
 
-TODO
+valhalla supports different use cases. F.e. you want to have ability to create minor release and hotfix
+but these processes have different steps. You can do it!
 
-## 🏴󠁣󠁤󠁥󠁱󠁿 variables
+What you have to do is to define 2 files:
+
+- valhalla.yml
+- valhalla-hotfix.yml
+
+And now, when you want to start one of this process:
+
+- to create minor release using `valhalla.yml` create branch matching regex: `release-*`
+- to create hotfix release using `valhalla-hotfix.yml` create branch matching regex: `release-hotfix-*`
+
+This is only example, and you can define any suffix, f.e `valhalla-super-release.yml` needs
+branch `release-super-release-*`
+
+*You can only define f.e. `valhalla-minor.yml` and you do not need `valhalla.yml`, but your branches name triggering
+release must meet convention*
+
+## 🔢 variables
 
 **Use `{}` to evaluate variable to value f.e. `{FOOBAR}`**
 
 **hierarchy (from most important):**
+
 - predefined variables
 - custom variables
 - environment variables
@@ -147,7 +165,6 @@ merge_request:
 
 **It is really useful with `extends` mechanism, f.e. define general template with `variables`
 which will be overriden in child `valhalla.yml`.**
-
 
 ### 🐛 environment variables
 

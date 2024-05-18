@@ -118,10 +118,10 @@ class Config:
                f" )"
 
 
-def get_config(path) -> Config:
+def get_config(path: str) -> Config:
+    info(f"Trying to load config from: {path}")
     try:
         with open(path) as f:
-            info(f"Trying to load config from: {path}")
             yml_dict = safe_load(f)
 
             extends_list = get_from_dict(yml_dict, 'extends', False)
@@ -192,7 +192,7 @@ def get_release_description_config_part(description_dict: dict) -> ReleaseDescri
 def get_release_assets_config_part(assets_dict: dict) -> ReleaseAssetsConfig:
     if assets_dict is None:
         return ReleaseAssetsConfig([])
-    
+
     links_dict = assets_dict['links']
     links = get_release_assets_links_config_part(links_dict)
 

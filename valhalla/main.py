@@ -1,31 +1,34 @@
 from valhalla.ci_provider.get_token import get_valhalla_token
+from valhalla.ci_provider.gitlab.get_version import get_version_to_release
 from valhalla.ci_provider.gitlab.merge_request import GitLabValhallaMergeRequest
 from valhalla.ci_provider.gitlab.release import GitLabValhallaRelease
 from valhalla.commit import before
-from valhalla.ci_provider.gitlab.get_version import get_version_number_to_release
 from valhalla.commit.commit import GitRepository
-from valhalla.common.get_config import get_config, Config, CommitConfig, MergeRequestConfig
+from valhalla.common.get_config import get_config, CommitConfig, MergeRequestConfig, Config
 from valhalla.common.logger import info, init_logger
 from valhalla.common.resolver import init_str_resolver, init_str_resolver_custom_variables
 from valhalla.release.assets import Assets
 from valhalla.release.description import Description
+from valhalla.version.version_to_release import get_release_kinds
 
 
 def start():
     print(f'Release the Valhalla!')
 
-    version_to_release = get_version_number_to_release()
+    release_kinds = get_release_kinds(".")
+
+    version_to_release = get_version_to_release(release_kinds)
     token = get_valhalla_token()
     init_logger(token)
 
-    init_str_resolver(version_to_release, token)
+    init_str_resolver(version_to_release.version_number_to_release, token)
 
-    config = get_config("./valhalla.yml")
+    config = get_config(version_to_release.get_config_file_path())
     init_str_resolver_custom_variables(config.variables)
 
     commit(config.commit_before_release, token)
 
-    create_release(config, version_to_release)
+    create_release(config, version_to_release.version_number_to_release)
 
     commit(config.commit_after_release, token)
 
@@ -45,7 +48,7 @@ def create_merge_request(merge_request_config: MergeRequestConfig):
         info("merge_request.enabled is False in valhalla.yml, skipping")
 
 
-def create_release(config, version_to_release):
+def create_release(config: Config, version_to_release: str):
     info("Preparing to create release")
     release = GitLabValhallaRelease()
     description = Description(config.release_config.description_config)
