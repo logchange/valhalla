@@ -23,13 +23,21 @@ class GetValhallaReleaseKindsTest(unittest.TestCase):
 
         self.assertEqual(len(result), 2)
 
-        self.assertEqual(result[0].filename, "valhalla.yml")
-        self.assertEqual(result[0].suffix, "")
-        self.assertEqual(result[0].path, path)
+        # different os have different sorting, so we don't know which is first
+        if result[0].filename == "valhalla.yml":
+            first = 0
+            second = 1
+        else:
+            first = 1
+            second = 0
 
-        self.assertEqual(result[1].filename, "valhalla-hotfix.yml")
-        self.assertEqual(result[1].suffix, "-hotfix")
-        self.assertEqual(result[1].path, path)
+        self.assertEqual(result[first].filename, "valhalla.yml")
+        self.assertEqual(result[first].suffix, "")
+        self.assertEqual(result[first].path, path)
+
+        self.assertEqual(result[second].filename, "valhalla-hotfix.yml")
+        self.assertEqual(result[second].suffix, "-hotfix")
+        self.assertEqual(result[second].path, path)
 
     @patch('valhalla.version.version_to_release.exit')
     def test_empty(self, mock_exit):
