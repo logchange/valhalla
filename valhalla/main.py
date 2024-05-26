@@ -6,18 +6,18 @@ from valhalla.commit import before
 from valhalla.commit.commit import GitRepository
 from valhalla.common.get_config import get_config, CommitConfig, MergeRequestConfig, Config
 from valhalla.common.logger import info, init_logger
+from valhalla.version.release_command import get_version_to_release_from_command
 from valhalla.common.resolver import init_str_resolver, init_str_resolver_custom_variables
 from valhalla.release.assets import Assets
 from valhalla.release.description import Description
-from valhalla.version.version_to_release import get_release_kinds
+from valhalla.version.version_to_release import get_release_kinds, VersionToRelease
 
 
 def start():
     print(f'Release the Valhalla!')
 
-    release_kinds = get_release_kinds(".")
+    version_to_release = __version_to_release()
 
-    version_to_release = get_version_to_release(release_kinds)
     token = get_valhalla_token()
     init_logger(token)
 
@@ -33,6 +33,16 @@ def start():
     commit(config.commit_after_release, token)
 
     create_merge_request(config.merge_request)
+
+
+def __version_to_release() -> VersionToRelease:
+    release_kinds = get_release_kinds(".")
+    version_to_release = get_version_to_release_from_command(release_kinds)
+
+    if version_to_release is None:
+        version_to_release = get_version_to_release(release_kinds)
+
+    return version_to_release
 
 
 def create_merge_request(merge_request_config: MergeRequestConfig):
