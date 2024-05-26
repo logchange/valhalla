@@ -86,8 +86,17 @@ merge_request:
 
 ### 🔸 usage
 
+**by branch:**
+
 1. Create branch `release-X.X.X` where `X.X.X` is a name of the version that is going to be released. You can also use
-   extensions like `release-2.10.4-RC`.
+   extensions like `release-2.10.4-RC`. To use different release kind use f.e. `release-hotfix-X.X.X`.
+2. Valhalla will do everything for you 🚀
+
+**by `VALHALLA_RELEASE_CMD` env variable:**
+
+1. Set `VALHALLA_RELEASE_CMD` env variable to `release-X.X.X` where `X.X.X` is a name of the version that is going to be
+   released. You can also use
+   extensions like `release-2.10.4-RC`. To use different release kind use f.e. `release-hotfix-X.X.X`.
 2. Valhalla will do everything for you 🚀
 
 ### 👨🏻‍👦🏻 inheritance
@@ -144,11 +153,11 @@ and override values in custom use cases.
 
 **Use `{}` to evaluate variable to value f.e. `{VERSION}`**
 
-|       name       |                                                                                                      description                                                                                                      |
-|:----------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|    `VERSION`     |                                                                      value extracted from branch name, for `release-1.2.14` it will be `1.2.14`                                                                       |
-|  `VERSION_SLUG`  | value extracted from branch name and with everything except 0-9 and a-z replaced with -. No leading / trailing -, <br/>for `release-1.2.14` it will be `1-2-14`. Use in URLs, host names, domain names and file names |
-| `VALHALLA_TOKEN` |                                                                                   token passed to CI runner which execute this job                                                                                    |
+|       name       |                                                                                                                   description                                                                                                                   |
+|:----------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|    `VERSION`     |                                                                      value extracted from branch name or `VALHALLA_RELEASE_CMD`, for `release-1.2.14` it will be `1.2.14`                                                                       |
+|  `VERSION_SLUG`  | value extracted from branch name or `VALHALLA_RELEASE_CMD` and with everything except 0-9 and a-z replaced with -. No leading / trailing -, <br/>for `release-1.2.14` it will be `1-2-14`. Use in URLs, host names, domain names and file names |
+| `VALHALLA_TOKEN` |                                                                                                token passed to CI runner which execute this job                                                                                                 |
 
 ### 🏭 custom variables
 
@@ -189,6 +198,7 @@ in your `valhalla.yml`.
 workflows:
   # .... your standard workflows here
   - if: $CI_COMMIT_BRANCH =~ /^release-*/ && $CI_COMMIT_TITLE !~ /.*VALHALLA SKIP.*/
+  - if: $VALHALLA_RELEASE_CMD =~ /^release-*/ && $CI_COMMIT_TITLE !~ /.*VALHALLA SKIP.*/
 
 # add new stage
 stages:
@@ -210,6 +220,10 @@ valhalla_release:
     # and for commits that DOES NOT include VALHALLA SKIP
     # valhalla during committing adds [VALHALLA SKIP] at the end of commit msg
     - if: $CI_COMMIT_BRANCH =~ /^release-*/ && $CI_COMMIT_TITLE !~ /.*VALHALLA SKIP.*/
+    # we run the job when VALHALLA_RELEASE_CMD env variable is present and has name release-
+    # and for commits that DOES NOT include VALHALLA SKIP
+    # valhalla during committing adds [VALHALLA SKIP] at the end of commit msg
+    - if: $VALHALLA_RELEASE_CMD =~ /^release-*/ && $CI_COMMIT_TITLE !~ /.*VALHALLA SKIP.*/
 ```
 
 ### 🚧 .gitignore
