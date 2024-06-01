@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 from valhalla.ci_provider.gitlab.common import get_gitlab_client, get_project_id
 from valhalla.common.logger import info
@@ -11,16 +12,20 @@ class GitLabValhallaRelease:
         self.gl = get_gitlab_client()
         self.project = self.gl.projects.get(get_project_id(), lazy=True)
 
-    def create(self, version: str, description: Description, assets: Assets):
+    def create(self, version: str, description: Description, milestones: List[str], assets: Assets):
         branch = os.environ.get('CI_COMMIT_BRANCH')
 
         info(f"Creating release from branch: " + branch)
 
-        release = self.project.releases.create(
-            {'name': version,
-             'tag_name': version,
-             'ref': branch,
-             'description': description.get(),
-             'assets': assets.to_dict()})
+        data = {'name': version,
+                'tag_name': version,
+                'ref': branch,
+                'description': description.get(),
+                'milestones': milestones,
+                'assets': assets.to_dict()}
+
+        info(f"Release data: \n {data}")
+
+        release = self.project.releases.create(data)
 
         info(f"Created release: " + release._links['self'])

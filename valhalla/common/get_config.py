@@ -80,14 +80,16 @@ class ReleaseDescriptionConfig:
 
 
 class ReleaseConfig:
-    def __init__(self, description_config: ReleaseDescriptionConfig, assets_config: ReleaseAssetsConfig):
+    def __init__(self, description_config: ReleaseDescriptionConfig, milestones: List[str], assets_config: ReleaseAssetsConfig):
         self.description_config = description_config
+        self.milestones = milestones
         self.assets_config = assets_config
 
     def __repr__(self):
         return f"\n" \
                f"   ReleaseConfig( \n" \
                f"           description_config={self.description_config} \n" \
+               f"           milestones={self.milestones} \n" \
                f"           assets_config={self.assets_config} \n" \
                f"   )"
 
@@ -130,12 +132,12 @@ def get_config(path: str) -> Config:
 
             variables = get_from_dict(yml_dict, 'variables', False)
 
-            git_host = yml_dict['git_host']
+            git_host = get_from_dict(yml_dict, 'git_host', True)
 
-            commit_before_release_dict = yml_dict['commit_before_release']
+            commit_before_release_dict = get_from_dict(yml_dict, 'commit_before_release', False)
             commit_before_release = get_commit_part(commit_before_release_dict)
 
-            release_config_dict = yml_dict['release']
+            release_config_dict = get_from_dict(yml_dict, 'release', True)
             release_config = get_release_config_part(release_config_dict)
 
             commit_after_release_dict = get_from_dict(yml_dict, 'commit_after_release', False)
@@ -162,7 +164,10 @@ def get_config(path: str) -> Config:
         exit(-1)
 
 
-def get_commit_part(commit_config_dict: dict) -> CommitConfig:
+def get_commit_part(commit_config_dict: dict) -> CommitConfig | None:
+    if commit_config_dict is None:
+        return None
+
     enabled = str_to_bool(get_from_dict(commit_config_dict, 'enabled', True))
     commit_other_options_required = enabled
 
@@ -177,11 +182,13 @@ def get_commit_part(commit_config_dict: dict) -> CommitConfig:
 def get_release_config_part(release_config_dict: dict) -> ReleaseConfig:
     description_dict = release_config_dict['description']
     description = get_release_description_config_part(description_dict)
+    
+    milestones = get_from_dict(release_config_dict, 'milestones', False)
 
     assets_dict = get_from_dict(release_config_dict, 'assets', False)
     assets = get_release_assets_config_part(assets_dict)
 
-    return ReleaseConfig(description, assets)
+    return ReleaseConfig(description, milestones, assets)
 
 
 def get_release_description_config_part(description_dict: dict) -> ReleaseDescriptionConfig:

@@ -7,7 +7,7 @@ from valhalla.commit.commit import GitRepository
 from valhalla.common.get_config import get_config, CommitConfig, MergeRequestConfig, Config
 from valhalla.common.logger import info, init_logger
 from valhalla.version.release_command import get_version_to_release_from_command
-from valhalla.common.resolver import init_str_resolver, init_str_resolver_custom_variables
+from valhalla.common.resolver import init_str_resolver, init_str_resolver_custom_variables, resolve
 from valhalla.release.assets import Assets
 from valhalla.release.description import Description
 from valhalla.version.version_to_release import get_release_kinds, VersionToRelease
@@ -36,7 +36,8 @@ def start():
 
 
 def __version_to_release() -> VersionToRelease:
-    release_kinds = get_release_kinds(".")
+    current_dir = "."
+    release_kinds = get_release_kinds(current_dir)
     version_to_release = get_version_to_release_from_command(release_kinds)
 
     if version_to_release is None:
@@ -63,11 +64,21 @@ def create_release(config: Config, version_to_release: str):
     release = GitLabValhallaRelease()
     description = Description(config.release_config.description_config)
     assets = Assets(config.release_config.assets_config)
-    release.create(version_to_release, description, assets)
+
+    if config.release_config.milestones is not None:
+        milestones = list(map(resolve, config.release_config.milestones))
+    else:
+        milestones = []
+
+    release.create(version_to_release, description, milestones, assets)
     info("Finished creating release")
 
 
 def commit(commit_config: CommitConfig, token: str):
+    if commit_config is None:
+        info("Commit config is missing, skipping scripts to execute, commit, push!")
+        return
+
     if commit_config.enabled:
         info("Commit enabled is True so scripts, commit, push will be performed")
 
@@ -81,7 +92,7 @@ def commit(commit_config: CommitConfig, token: str):
             info("Pushed successful!")
 
     else:
-        info("Commit disabled(enabled: False), skipping  scripts, commit, push!")
+        info("Commit disabled(enabled: False), skipping  scripts to execute, commit, push!")
 
 
 if __name__ == '__main__':
