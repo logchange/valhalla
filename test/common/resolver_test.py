@@ -18,6 +18,18 @@ class TestStringResolver(unittest.TestCase):
         # then:
         self.assertEqual("Testing 1.0", resolved_string)
 
+    def test_resolve_predefined_version(self):
+        # given:
+        init_str_resolver("1.2.14-RC01", "token123")
+        init_str_resolver_custom_variables({"CUSTOM_VAR": "value123"})
+
+        # when:
+        resolved_string = resolve(
+            "Testing {VERSION}; major is {VERSION_MAJOR} and minor is {VERSION_MINOR} and patch {VERSION_PATCH}")
+
+        # then:
+        self.assertEqual("Testing 1.2.14-RC01; major is 1 and minor is 2 and patch 14", resolved_string)
+
     def test_resolve_predefined_version_slug(self):
         # given:
         init_str_resolver("1.0.0", "token123")
