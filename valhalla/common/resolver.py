@@ -1,7 +1,7 @@
 import os
 import re
 
-from valhalla.common.logger import info, error
+from valhalla.common.logger import info, error, warn
 
 VERSION = "not_set"
 VERSION_MAJOR = "not_set"
@@ -94,18 +94,21 @@ def __get_major(version):
     match = re.match(r'^(\d+)', version)
     if match:
         return match.group(1)
-    raise ValueError("Invalid version format")
+    warn(f"Could not get VERSION_MINOR variable value from version: {version}")
+    return ""
 
 
 def __get_minor(version):
     match = re.match(r'^\d+\.(\d+)', version)
     if match:
         return match.group(1)
-    raise ValueError("Invalid version format")
+    warn(f"Could not get VERSION_MINOR variable value from version: {version}")
+    return ""
 
 
 def __get_patch(version):
     match = re.match(r'^\d+\.\d+\.(\d+)', version)
     if match:
         return match.group(1)
-    raise ValueError("Invalid version format")
+    warn(f"Could not get VERSION_PATCH variable value from version: {version}")
+    return ""
