@@ -52,6 +52,9 @@ release:
     # bash command with will be executed and output will be used as 
     # release description, you can use string predefined variables
     from_command: "cat changelog/v{VERSION}/version_summary.md"
+  milestones:
+    - M {VERSION_MAJOR}.{VERSION_MINOR}
+    - Main
   assets: # https://docs.gitlab.com/ee/api/releases/#create-a-release
     links:
       - name: Documentation # you can use string predefined variables
