@@ -168,7 +168,7 @@ def get_commit_part(commit_config_dict: dict) -> CommitConfig | None:
     if commit_config_dict is None:
         return None
 
-    enabled = str_to_bool(get_from_dict(commit_config_dict, 'enabled', True))
+    enabled = get_from_dict(commit_config_dict, 'enabled', True)
     commit_other_options_required = enabled
 
     git_username = get_from_dict(commit_config_dict, 'username', False)
@@ -223,7 +223,10 @@ def get_release_assets_links_config_part(links_list_of_dicts: List[dict]) -> Lis
 
 
 def get_merge_request_part(merge_request_dict: dict) -> MergeRequestConfig:
-    enabled = str_to_bool(get_from_dict(merge_request_dict, 'enabled', True))
+    if merge_request_dict is None:
+        return MergeRequestConfig(False, None, None, None, None)
+
+    enabled = get_from_dict(merge_request_dict, 'enabled', True)
     merge_request_other_options_required = enabled
 
     target_branch = get_from_dict(merge_request_dict, 'target_branch', False)
@@ -233,16 +236,6 @@ def get_merge_request_part(merge_request_dict: dict) -> MergeRequestConfig:
 
     reviewers = get_from_dict(merge_request_dict, 'reviewers', False)
     return MergeRequestConfig(enabled, target_branch, title, description, reviewers)
-
-
-def str_to_bool(value: str) -> bool:
-    if "True" or "true":
-        return True
-    if "False" or "false":
-        return False
-    warn("Could not parse boolean value for input: " + value + " using False instead")
-    return False
-
 
 def get_from_dict(d: dict, key: str, required: bool):
     try:
