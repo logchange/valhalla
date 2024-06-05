@@ -32,7 +32,7 @@ class GetConfigTest(unittest.TestCase):
             description:
                 from_command: "cat changelog/v{VERSION}/version_summary.md"
         merge_request:
-            enabled: False
+            enabled: On
             title: test mr title
         """,
     )
@@ -47,6 +47,7 @@ class GetConfigTest(unittest.TestCase):
             config.commit_before_release.before_commands,
             ['echo "test"', 'echo "test2"'],
         )
+        self.assertEqual(config.merge_request.enabled, True)
 
         mock_open_file.assert_called_once_with(self.config_path)
 
