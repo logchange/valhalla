@@ -2,7 +2,7 @@ from typing import List
 from yaml import safe_load
 
 from valhalla.common.logger import info, error, warn
-from valhalla.extends.ValhallaExtends import ValhallaExtends
+from valhalla.extends.valhalla_extends import ValhallaExtends
 
 
 class MergeRequestConfig:
