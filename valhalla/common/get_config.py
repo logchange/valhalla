@@ -124,11 +124,13 @@ def get_config(path: str) -> Config:
     info(f"Trying to load config from: {path}")
     try:
         with open(path) as f:
-            yml_dict = safe_load(f)
+            org_yml_dict = safe_load(f)
 
-            extends_list = get_from_dict(yml_dict, 'extends', False)
+            extends_list = get_from_dict(org_yml_dict, 'extends', False)
             extends = ValhallaExtends(extends_list)
-            yml_dict = extends.merge(yml_dict)
+            yml_dict = extends.merge(org_yml_dict)
+
+            info("yml_dict to read config from: " + str(yml_dict))
 
             variables = get_from_dict(yml_dict, 'variables', False)
 
