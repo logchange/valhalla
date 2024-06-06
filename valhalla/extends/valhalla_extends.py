@@ -5,17 +5,23 @@ from yaml import safe_load
 
 from valhalla.common.logger import info, error
 from valhalla.extends.merge_dicts import merge
-from valhalla.common.resolver import resolve
 
 
 def get_from_url(url):
     result = ""
-    data = requests.get(resolve(url)).text
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        info(f"Error: Received status code {response.status_code} from url: {url}")
+        exit(1)
+
+    data = response.text
     for line in data:
         result += line
-    info("Loaded from ULR")
+
+    info("Loaded from URL")
     info("===========================================")
-    print(result)
+    info(result)
     info("===========================================")
     return result
 
