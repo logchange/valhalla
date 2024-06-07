@@ -6,6 +6,16 @@ from valhalla.common.resolver import resolve, init_str_resolver, init_str_resolv
 
 
 class TestStringResolver(unittest.TestCase):
+    def test_resolve_no_custom_vars(self):
+        # given:
+        init_str_resolver("1.0", "token123")
+        init_str_resolver_custom_variables(None)
+
+        # when:
+        resolved_string = resolve("Testing {VERSION}")
+
+        # then:
+        self.assertEqual("Testing 1.0", resolved_string)
 
     def test_resolve_predefined(self):
         # given:

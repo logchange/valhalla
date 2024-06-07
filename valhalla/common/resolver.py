@@ -29,7 +29,8 @@ def init_str_resolver(version: str, token: str):
 
 def init_str_resolver_custom_variables(variables: dict):
     global CUSTOM_VARIABLES_DICT
-    CUSTOM_VARIABLES_DICT.update(variables)
+
+    CUSTOM_VARIABLES_DICT.update({} if variables is None else variables)
 
     for key, value in CUSTOM_VARIABLES_DICT.items():
         info(f"Custom variable: {key} set to: {value}")
