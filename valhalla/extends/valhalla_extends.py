@@ -5,11 +5,12 @@ from yaml import safe_load
 
 from valhalla.common.logger import info, error
 from valhalla.extends.merge_dicts import merge
+from valhalla.common.resolver import resolve
 
 
 def get_from_url(url):
     result = ""
-    response = requests.get(url)
+    response = requests.get(resolve(url))
 
     if response.status_code != 200:
         info(f"Error: Received status code {response.status_code} from url: {url}")
