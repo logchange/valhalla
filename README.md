@@ -213,7 +213,7 @@ stages:
 
 valhalla_release:
   stage: release
-  image: logchange/valhalla:1.3.0
+  image: logchange/valhalla:1.6.2
   # Prevent from fetching artifacts because it is a problem during committing all files (git add .)
   # https://docs.gitlab.com/ee/ci/jobs/job_artifacts.html#prevent-a-job-from-fetching-artifacts
   dependencies: [ ]
