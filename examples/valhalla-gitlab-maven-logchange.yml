@@ -1,0 +1,50 @@
+# This file is used by valhalla tool to create release 🌌
+# Visit https://github.com/logchange/valhalla and leave a star 🌟
+# More info about configuration you can find https://github.com/logchange/valhalla#%EF%B8%8F-configuration ⬅️
+
+git_host: gitlab
+
+variables:
+  DOC_DIR: "my-project" 
+  DOCKER_IMAGE_NAME: "my-project" 
+
+commit_before_release:
+  enabled: True
+  username: "ReleaseBot"
+  email: "release@logchange.dev"
+  msg: "Preparation for releasing version {VERSION}"
+  before:
+    - mvn versions:set -DnewVersion={VERSION}
+    - mvn versions:commit
+    - mvn dev.logchange:logchange-maven-plugin:release --non-recursive
+
+release:
+  description:
+    from_command: "cat changelog/v{VERSION}/version-summary.md"
+  assets:
+    links:
+      - name: Documentation
+        url: https://registry.my/#browse/browse:documentation:{DOC_DIR}%2F{VERSION}
+        link_type: other
+      - name: Docker Image
+        url: https://registry.my/#browse/browse:docker:v2%2F{DOCKER_IMAGE_NAME}%2Ftags%2F{VERSION}
+        link_type: image
+
+
+commit_after_release:
+  enabled: True
+  username: "ReleaseBot"
+  email: "release@logchange.dev"
+  msg: "[CI SKIP] Preparation for next release iteration"
+  before:
+    # https://www.mojohaus.org/versions/versions-maven-plugin/set-mojo.html 
+    # https://www.mojohaus.org/build-helper-maven-plugin/parse-version-mojo.html
+    # Update to next minor version by default f.e. 24.1.0 -> 24.2.0 and handle also 24.2.3 -> 24.3.0
+    - mvn build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.nextMinorVersion}.0-SNAPSHOT versions:commit
+
+
+merge_request:
+  enabled: True
+  title: "Releasing version {VERSION} and preparation for next iteration"
+  reviewers:
+    - marwin1991
