@@ -56,6 +56,14 @@ def get_release_kinds(path: str) -> List[ReleaseKind]:
 
 def get_version_to_release_from_str(value: str, release_kinds: List[ReleaseKind]) -> VersionToRelease:
     info(f"Analyzing {value} to match release kind")
+
+    # Sort release_kinds by the length of the branch prefix (descending)
+    release_kinds_sorted = sorted(
+        release_kinds, 
+        key=lambda rk: len(rk.suffix), 
+        reverse=True
+    )
+    
     # first we search for specific release kinds
     for release_kind in release_kinds:
         if release_kind.suffix != "":
