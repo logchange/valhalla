@@ -65,7 +65,7 @@ def get_version_to_release_from_str(value: str, release_kinds: List[ReleaseKind]
     )
     
     # first we search for specific release kinds
-    for release_kind in release_kinds:
+    for release_kind in release_kinds_sorted:
         if release_kind.suffix != "":
             prefix = __get_branch_prefix(release_kind)
             if value.startswith(prefix):
