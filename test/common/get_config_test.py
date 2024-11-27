@@ -154,6 +154,8 @@ class GetConfigTest(unittest.TestCase):
         new_callable=mock_open,
         read_data="""
         git_host: gitlab
+        release:
+            name: "Test Release Name"
         tag:
             name: "Test Tag Name"
         """,
