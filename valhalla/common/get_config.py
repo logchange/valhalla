@@ -80,9 +80,10 @@ class ReleaseDescriptionConfig:
 
 
 class ReleaseConfig:
-    def __init__(self, description_config: ReleaseDescriptionConfig, milestones: List[str], assets_config: ReleaseAssetsConfig):
+    def __init__(self, description_config: ReleaseDescriptionConfig, milestones: List[str], name: str, assets_config: ReleaseAssetsConfig):
         self.description_config = description_config
         self.milestones = milestones
+        self.name = name
         self.assets_config = assets_config
 
     def __repr__(self):
@@ -90,7 +91,18 @@ class ReleaseConfig:
                f"   ReleaseConfig( \n" \
                f"           description_config={self.description_config} \n" \
                f"           milestones={self.milestones} \n" \
+               f"           release_title={self.name} \n" \
                f"           assets_config={self.assets_config} \n" \
+               f"   )"
+    
+class TagConfig:
+    def __init__(self, name: str):
+        self.name = name
+
+    def __repr__(self):
+        return f"\n" \
+               f"   TagConfig( \n" \
+               f"           name={self.tag_name} \n" \
                f"   )"
 
 
@@ -100,12 +112,14 @@ class Config:
                  git_host: str,
                  commit_before_release: CommitConfig,
                  release_config: ReleaseConfig,
+                 tag_config: TagConfig,
                  commit_after_release: CommitConfig,
                  merge_request: MergeRequestConfig):
         self.variables = variables
         self.git_host = git_host
         self.commit_before_release = commit_before_release
         self.release_config = release_config
+        self.tag_config = tag_config
         self.commit_after_release = commit_after_release
         self.merge_request = merge_request
 
@@ -115,6 +129,7 @@ class Config:
                f"   git_host={self.git_host} \n" \
                f"   commit_before_release={self.commit_before_release} \n" \
                f"   release_config={self.release_config} \n" \
+               f"   tag_config={self.tag_config} \n" \
                f"   commit_after_release={self.commit_after_release} \n" \
                f"   merge_request={self.merge_request} \n" \
                f" )"
@@ -142,6 +157,9 @@ def get_config(path: str) -> Config:
             release_config_dict = get_from_dict(yml_dict, 'release', True)
             release_config = get_release_config_part(release_config_dict)
 
+            tag_config_dict = get_from_dict(yml_dict, 'tag', False)
+            tag_config = get_tag_config_part(tag_config_dict)
+
             commit_after_release_dict = get_from_dict(yml_dict, 'commit_after_release', False)
             commit_after_release = get_commit_part(commit_after_release_dict)
 
@@ -153,6 +171,7 @@ def get_config(path: str) -> Config:
                 git_host,
                 commit_before_release,
                 release_config,
+                tag_config,
                 commit_after_release,
                 merge_request
             )
@@ -186,11 +205,12 @@ def get_release_config_part(release_config_dict: dict) -> ReleaseConfig:
     description = get_release_description_config_part(description_dict)
     
     milestones = get_from_dict(release_config_dict, 'milestones', False)
+    name = get_from_dict(release_config_dict, 'name', False)
 
     assets_dict = get_from_dict(release_config_dict, 'assets', False)
     assets = get_release_assets_config_part(assets_dict)
 
-    return ReleaseConfig(description, milestones, assets)
+    return ReleaseConfig(description, milestones, name, assets)
 
 
 def get_release_description_config_part(description_dict: dict) -> ReleaseDescriptionConfig:
@@ -222,6 +242,11 @@ def get_release_assets_links_config_part(links_list_of_dicts: List[dict]) -> Lis
         result.append(ReleaseAssetsLinkConfig(name, url, link_type))
 
     return result
+
+def get_tag_config_part(tag_config_dict: dict) -> TagConfig:
+    name = get_from_dict(tag_config_dict, 'name', False)
+
+    return TagConfig(name)
 
 
 def get_merge_request_part(merge_request_dict: dict) -> MergeRequestConfig:

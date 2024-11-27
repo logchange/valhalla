@@ -31,6 +31,9 @@ class GetConfigTest(unittest.TestCase):
         release:
             description:
                 from_command: "cat changelog/v{VERSION}/version_summary.md"
+            name: "Test Release Name
+        tag: 
+            name: "Test Tag Name"
         merge_request:
             enabled: On
             title: test mr title
@@ -119,6 +122,51 @@ class GetConfigTest(unittest.TestCase):
 
         mock_open_file.assert_called_once_with(self.config_path)
         self.assertEqual(context.exception.code, -1)
+
+
+    @patch(
+        "builtins.open",
+        new_callable=mock_open,
+        read_data="""
+        git_host: gitlab
+        release:
+            name: "Test Release Name"
+            milestones: 
+                - "Test Milestone"
+            description:
+                from_command: "cat changelog/v{VERSION}/version_summary.md"
+        """,
+    )
+    def test_get_release_config(self, mock_open_file):
+        config = get_config(self.config_path)
+
+        mock_open_file.assert_called_once_with(self.config_path)
+
+        self.assertEqual(config.release_config, True)
+        self.assertEqual(config.release_config.name, "Test Release Name")
+        self.assertEqual(config.release_config.milestones, ['Test Milestone'])
+        self.assertEqual(config.release_config.description_config.from_command, "cat changelog/v{VERSION}/version_summary.md")
+
+        mock_open_file.assert_called_once_with(self.config_path)
+
+    @patch(
+        "builtins.open",
+        new_callable=mock_open,
+        read_data="""
+        git_host: gitlab
+        tag:
+            name: "Test Tag Name"
+        """,
+    )
+    def test_get_tag_config(self, mock_open_file):
+        config = get_config(self.config_path)
+
+        mock_open_file.assert_called_once_with(self.config_path)
+
+        self.assertEqual(config.tag_config, True)
+        self.assertEqual(config.tag_config.name, "Test Tag Name")
+
+        mock_open_file.assert_called_once_with(self.config_path)
 
 
 if __name__ == "__main__":
