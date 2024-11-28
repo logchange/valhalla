@@ -34,10 +34,14 @@ saving time, and promoting compliance with established regulations.
 # More info about configuration you can find https://github.com/logchange/valhalla#%EF%B8%8F-configuration ⬅️
 extends: # You can extend any file from URL! This helps keep configuration in one place!
   - https://raw.githubusercontent.com/logchange/valhalla/master/valhalla-extends.yml
-variables: # Define custom variables which can be used in any string with {}
+
+# Define custom variables which can be used in any string with {}
+variables:
   MY_VARIABLE: Some value
 git_host: gitlab # your project ci provider, supported [gitlab]  
-commit_before_release: # define actions which have to happen before release and output should be committed
+
+# define actions which have to happen before release and output should be committed
+commit_before_release:
   enabled: True # if this is True commands from before will be performed and committed to branch
   username: Test1234 # git config username
   email: test-valhalla@logchange.dev # git config email
@@ -46,8 +50,10 @@ commit_before_release: # define actions which have to happen before release and 
     - echo "test" > some_file4.md
     - mkdir -p changelog/v{VERSION}
     - echo "Super release description for tests generated at {CI_COMMIT_TIMESTAMP}" > changelog/v{VERSION}/version_summary.md
+
 # definition of release which will be created
 release:
+  name: "Release {VERSION}" # optional filed, you can use string predefined variables (default name is VERSION)
   description:
     # bash command with will be executed and output will be used as 
     # release description, you can use string predefined variables
@@ -63,7 +69,13 @@ release:
       - name: Docker Image # you can use string predefined variables
         url: https://dockerhub.com/q?={VERSION} # you can use string predefined variables
         link_type: image # The type of the link: other, runbook, image, package.
-commit_after_release: # define actions which have to happen after release and output should be committed
+        
+# definition of tag which will be created
+tag:
+  name: "Tag {VERSION}" # optional filed, you can use string predefined variables (default name is VERSION) 
+  
+# define actions which have to happen after release and output should be committed
+commit_after_release:
   enabled: True
   username: Test1234
   email: test-valhalla@logchange.dev

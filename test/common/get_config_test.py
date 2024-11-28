@@ -29,10 +29,10 @@ class GetConfigTest(unittest.TestCase):
               - echo "test"
               - echo "test2"
         release:
+            name: "Test Release Name"
             description:
                 from_command: "cat changelog/v{VERSION}/version_summary.md"
-            name: "Test Release Name
-        tag: 
+        tag:
             name: "Test Tag Name"
         merge_request:
             enabled: On
@@ -130,7 +130,7 @@ class GetConfigTest(unittest.TestCase):
         read_data="""
         git_host: gitlab
         release:
-            name: "Test Release Name"
+            name: "Test Release Name {VERSION}"
             milestones: 
                 - "Test Milestone"
             description:
@@ -142,8 +142,8 @@ class GetConfigTest(unittest.TestCase):
 
         mock_open_file.assert_called_once_with(self.config_path)
 
-        self.assertEqual(config.release_config, True)
-        self.assertEqual(config.release_config.name, "Test Release Name")
+        self.assertIsNotNone(config.release_config)
+        self.assertEqual(config.release_config.name, "Test Release Name {VERSION}")
         self.assertEqual(config.release_config.milestones, ['Test Milestone'])
         self.assertEqual(config.release_config.description_config.from_command, "cat changelog/v{VERSION}/version_summary.md")
 
@@ -155,9 +155,11 @@ class GetConfigTest(unittest.TestCase):
         read_data="""
         git_host: gitlab
         release:
-            name: "Test Release Name"
+            name: "Test Release Name {VERSION}"
+            description:
+                from_command: "cat changelog/v{VERSION}/version_summary.md"
         tag:
-            name: "Test Tag Name"
+            name: "Test Tag Name {VERSION}"
         """,
     )
     def test_get_tag_config(self, mock_open_file):
@@ -165,8 +167,8 @@ class GetConfigTest(unittest.TestCase):
 
         mock_open_file.assert_called_once_with(self.config_path)
 
-        self.assertEqual(config.tag_config, True)
-        self.assertEqual(config.tag_config.name, "Test Tag Name")
+        self.assertIsNotNone(config.tag_config)
+        self.assertEqual(config.tag_config.name, "Test Tag Name {VERSION}")
 
         mock_open_file.assert_called_once_with(self.config_path)
 

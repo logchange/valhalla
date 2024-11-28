@@ -102,7 +102,7 @@ class TagConfig:
     def __repr__(self):
         return f"\n" \
                f"   TagConfig( \n" \
-               f"           name={self.tag_name} \n" \
+               f"           name={self.name} \n" \
                f"   )"
 
 
@@ -243,7 +243,9 @@ def get_release_assets_links_config_part(links_list_of_dicts: List[dict]) -> Lis
 
     return result
 
-def get_tag_config_part(tag_config_dict: dict) -> TagConfig:
+def get_tag_config_part(tag_config_dict: dict) -> TagConfig | None:
+    if tag_config_dict is None:
+        return None
     name = get_from_dict(tag_config_dict, 'name', False)
 
     return TagConfig(name)
