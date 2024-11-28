@@ -12,13 +12,13 @@ class GitLabValhallaRelease:
         self.gl = get_gitlab_client()
         self.project = self.gl.projects.get(get_project_id(), lazy=True)
 
-    def create(self, version: str, description: Description, milestones: List[str], assets: Assets):
+    def create(self, description: Description, milestones: List[str], release_name: str, tag_name: str, assets: Assets):
         branch = os.environ.get('CI_COMMIT_BRANCH')
 
         info(f"Creating release from branch: " + branch)
 
-        data = {'name': version,
-                'tag_name': version,
+        data = {'name': release_name,
+                'tag_name': tag_name,
                 'ref': branch,
                 'description': description.get(),
                 'milestones': milestones,

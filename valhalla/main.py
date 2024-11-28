@@ -70,7 +70,17 @@ def create_release(config: Config, version_to_release: str):
     else:
         milestones = []
 
-    release.create(version_to_release, description, milestones, assets)
+    if config.release_config.name is not None:
+        release_name = resolve(config.release_config.name)
+    else:
+        release_name = version_to_release
+
+    if config.tag_config.name is not None:
+        tag_name = resolve(config.tag_config.name)
+    else:
+        tag_name = version_to_release
+
+    release.create(description, milestones, release_name, tag_name, assets)
     info("Finished creating release")
 
 
