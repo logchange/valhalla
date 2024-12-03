@@ -65,17 +65,17 @@ def create_release(config: Config, version_to_release: str):
     description = Description(config.release_config.description_config)
     assets = Assets(config.release_config.assets_config)
 
-    if config.release_config.milestones is not None:
+    if config.release_config is not None and config.release_config.milestones is not None:
         milestones = list(map(resolve, config.release_config.milestones))
     else:
         milestones = []
 
-    if config.release_config.name is not None:
+    if config.release_config is not None and config.release_config.name is not None:
         release_name = resolve(config.release_config.name)
     else:
         release_name = version_to_release
 
-    if config.tag_config.name is not None:
+    if config.tag_config is not None and config.tag_config.name is not None:
         tag_name = resolve(config.tag_config.name)
     else:
         tag_name = version_to_release
