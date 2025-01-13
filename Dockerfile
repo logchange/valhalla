@@ -17,6 +17,12 @@ RUN apk --update --no-cache add  \
     maven  \
     openjdk8
 
+RUN wget https://github.com/logchange/logchange/releases/download/1.15.0/logchange-linuxx64.zip \
+    && unzip logchange-linuxx64.zip \
+    && mv bins/logchange-linuxx64/logchange /usr/local/bin/logchange \
+    && chmod +x /usr/local/bin/logchange \
+    && rm -rf logchange-linuxx64.zip bins
+
 ENV VALHALLA_SRC="/opt/valhalla/"
 ADD requirements.txt $VALHALLA_SRC
 RUN pip3 install --break-system-packages --user -r ${VALHALLA_SRC}requirements.txt
