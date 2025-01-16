@@ -20,6 +20,7 @@ class GetValhallaReleaseKindsTest(unittest.TestCase):
     def test_main_and_hotfix_file(self):
         path = os.path.dirname(os.path.abspath(__file__)) + "/resources/test_main_and_hotfix_file"
         result = get_release_kinds(path)
+        result.sort(key=lambda kind: kind.filename)
 
         self.assertEqual(len(result), 2)
 
