@@ -51,6 +51,10 @@ class GitLabValhallaMergeRequest:
     def __get_reviewer_ids(self, reviewers: List[str]) -> List[int]:
         result = []
 
+        if not reviewers:
+            warn("Reviewers list is None or empty")
+            return result
+
         for rev in reviewers:
             try:
                 user = self.gl.users.list(username=rev)[0]
