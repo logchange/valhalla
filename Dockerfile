@@ -15,7 +15,10 @@ RUN apk --update --no-cache add  \
     python3 \
     py3-pip \
     maven  \
-    openjdk8
+    openjdk8 \
+    nodejs \
+    npm && \
+    npm install -g pnpm
 
 RUN wget https://github.com/logchange/logchange/releases/download/1.15.0/logchange-linuxx64.zip \
     && unzip logchange-linuxx64.zip \
