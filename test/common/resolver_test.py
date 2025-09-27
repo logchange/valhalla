@@ -29,7 +29,7 @@ class TestStringResolver(unittest.TestCase):
 
         # then:
         self.assertEqual("Testing 1.0", resolved_string)
-        self.assertEqual("Testing kod", resolved_string_author)
+        self.assertEqual("Testing kot", resolved_string_author)
 
 
     def test_resolve_predefined_version(self):
