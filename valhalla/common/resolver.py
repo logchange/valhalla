@@ -9,22 +9,26 @@ VERSION_MINOR = "not_set"
 VERSION_PATCH = "not_set"
 VERSION_SLUG = "not_set"
 VALHALLA_TOKEN = "not_set"
+AUTHOR="not_set"
 CUSTOM_VARIABLES_DICT = dict()
 
 
-def init_str_resolver(version: str, token: str):
+def init_str_resolver(version: str, token: str, author: str):
     global VERSION
     global VERSION_MAJOR
     global VERSION_MINOR
     global VERSION_PATCH
     global VERSION_SLUG
     global VALHALLA_TOKEN
+    global AUTHOR
+
     VERSION = version
     VERSION_MAJOR = __get_major(version)
     VERSION_MINOR = __get_minor(version)
     VERSION_PATCH = __get_patch(version)
     VERSION_SLUG = __get_slug(version)
     VALHALLA_TOKEN = token
+    AUTHOR = author
 
 
 def init_str_resolver_custom_variables(variables: dict):
@@ -58,6 +62,7 @@ def __resolve_predefined(string: str):
     global VERSION_PATCH
     global VERSION_SLUG
     global VALHALLA_TOKEN
+    global AUTHOR
 
     string = string.replace("{VERSION}", VERSION)
     string = string.replace("{VERSION_MAJOR}", VERSION_MAJOR)
@@ -65,6 +70,7 @@ def __resolve_predefined(string: str):
     string = string.replace("{VERSION_PATCH}", VERSION_PATCH)
     string = string.replace("{VERSION_SLUG}", VERSION_SLUG)
     string = string.replace("{VALHALLA_TOKEN}", VALHALLA_TOKEN)
+    string = string.replace("{AUTHOR}", AUTHOR)
 
     return string
 

@@ -176,6 +176,8 @@ and override values in custom use cases.
 | `VERSION_PATCH`  |                                                                        value extracted from branch name or `VALHALLA_RELEASE_CMD`, for `release-1.2.14` it will be `14`                                                                         |
 |  `VERSION_SLUG`  | value extracted from branch name or `VALHALLA_RELEASE_CMD` and with everything except 0-9 and a-z replaced with -. No leading / trailing -, <br/>for `release-1.2.14` it will be `1-2-14`. Use in URLs, host names, domain names and file names |
 | `VALHALLA_TOKEN` |                                                                                                token passed to CI runner which execute this job                                                                                                 |
+|     `AUTHOR`     |                                                                                              author of the release (who triggered release process)                                                                                              |
+
 
 ### 🏭 custom variables
 
