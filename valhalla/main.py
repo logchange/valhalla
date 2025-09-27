@@ -1,3 +1,4 @@
+from valhalla.ci_provider.gitlab.common import get_author
 from valhalla.ci_provider.get_token import get_valhalla_token
 from valhalla.ci_provider.gitlab.get_version import get_version_to_release
 from valhalla.ci_provider.gitlab.merge_request import GitLabValhallaMergeRequest
@@ -19,9 +20,10 @@ def start():
     version_to_release = __version_to_release()
 
     token = get_valhalla_token()
+    author = get_author()
     init_logger(token)
 
-    init_str_resolver(version_to_release.version_number_to_release, token)
+    init_str_resolver(version_to_release.version_number_to_release, token, author)
 
     config = get_config(version_to_release.get_config_file_path())
     init_str_resolver_custom_variables(config.variables)

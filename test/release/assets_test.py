@@ -7,7 +7,7 @@ from valhalla.release.assets import AssetsLink, Assets
 
 class TestAssetsLink(unittest.TestCase):
     def test_assets_link_creation(self):
-        init_str_resolver("1.1.1", "alamaKota")
+        init_str_resolver("1.1.1", "alamaKota", "kot")
 
         link_config = ReleaseAssetsLinkConfig('Test Asset', 'http://example.com/test_asset', 'image')
 
@@ -20,7 +20,7 @@ class TestAssetsLink(unittest.TestCase):
 
 class TestAssets(unittest.TestCase):
     def test_assets_creation(self):
-        init_str_resolver("1.1.1", "alamaKota")
+        init_str_resolver("1.1.1", "alamaKota", "kot")
 
         assets_config = ReleaseAssetsConfig([
             ReleaseAssetsLinkConfig('Test Asset 1', 'http://example.com/test_asset_1', 'image'),
@@ -38,7 +38,7 @@ class TestAssets(unittest.TestCase):
         self.assertEqual(assets.links[1].link_type, 'other')
 
     def test_assets_json_empty(self):
-        init_str_resolver("1.1.1", "alamaKota")
+        init_str_resolver("1.1.1", "alamaKota", "kot")
 
         assets_config = ReleaseAssetsConfig([])
         assets = Assets(assets_config)
@@ -48,7 +48,7 @@ class TestAssets(unittest.TestCase):
         self.assertEqual(json, '{"links": []}')
 
     def test_assets_json(self):
-        init_str_resolver("1.1.1", "alamaKota")
+        init_str_resolver("1.1.1", "alamaKota", "kot")
 
         assets_config = ReleaseAssetsConfig([
             ReleaseAssetsLinkConfig('Test Asset 1', 'http://example.com/test_asset_1', 'image'),
