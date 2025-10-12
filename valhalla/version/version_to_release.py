@@ -45,9 +45,9 @@ class VersionToRelease:
             stdout = result.stdout
             stderr = result.stderr
             if stdout:
-                info(f"Output for command '{from_command}':\n{stdout}")
+                info(f"Output for version from command '{from_command}':\n{stdout}")
             if stderr:
-                error(f"Error output for command '{from_command}':\n{stderr}")
+                error(f"Error output for version from command '{from_command}':\n{stderr}")
 
             self.version_number_to_release = stdout
         except subprocess.CalledProcessError as e:

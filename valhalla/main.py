@@ -12,7 +12,7 @@ from valhalla.common.resolver import init_str_resolver, init_str_resolver_custom
 from valhalla.release.assets import Assets
 from valhalla.release.description import Description
 from valhalla.version.version_to_release import get_release_kinds, VersionToRelease
-from version.version_to_release import BASE_PREFIX
+from valhalla.version.version_to_release import BASE_PREFIX
 
 
 def start():

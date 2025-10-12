@@ -58,6 +58,27 @@ class GetConfigTest(unittest.TestCase):
         "builtins.open",
         new_callable=mock_open,
         read_data="""
+        version:
+            from_command: "cat version.txt"
+        git_host: gitlab
+        release:
+            name: "Test Release Name"
+        """,
+    )
+    def test_get_version_config(self, mock_open_file):
+        config = get_config(self.config_path)
+
+        mock_open_file.assert_called_once_with(self.config_path)
+
+        self.assertIsNotNone(config.version_config)
+        self.assertEqual(config.version_config.from_command, "cat version.txt")
+
+        mock_open_file.assert_called_once_with(self.config_path)
+
+    @patch(
+        "builtins.open",
+        new_callable=mock_open,
+        read_data="""
         git_host: gitlab
         commit_before_release:
             enabled: True
@@ -76,10 +97,10 @@ class GetConfigTest(unittest.TestCase):
         mock_open_file.assert_called_once_with(self.config_path)
 
         self.assertEqual(config.merge_request.enabled, False)
-        self.assertEqual(config.merge_request.target_branch, None)
-        self.assertEqual(config.merge_request.title, None)
-        self.assertEqual(config.merge_request.description, None)
-        self.assertEqual(config.merge_request.reviewers, None)
+        self.assertEqual(config.merge_request.target_branch, "")
+        self.assertEqual(config.merge_request.title, "")
+        self.assertEqual(config.merge_request.description, "")
+        self.assertEqual(config.merge_request.reviewers, [])
 
         mock_open_file.assert_called_once_with(self.config_path)
 
@@ -123,7 +144,6 @@ class GetConfigTest(unittest.TestCase):
         mock_open_file.assert_called_once_with(self.config_path)
         self.assertEqual(context.exception.code, -1)
 
-
     @patch(
         "builtins.open",
         new_callable=mock_open,
@@ -145,7 +165,8 @@ class GetConfigTest(unittest.TestCase):
         self.assertIsNotNone(config.release_config)
         self.assertEqual(config.release_config.name, "Test Release Name {VERSION}")
         self.assertEqual(config.release_config.milestones, ['Test Milestone'])
-        self.assertEqual(config.release_config.description_config.from_command, "cat changelog/v{VERSION}/version_summary.md")
+        self.assertEqual(config.release_config.description_config.from_command,
+                         "cat changelog/v{VERSION}/version_summary.md")
 
         mock_open_file.assert_called_once_with(self.config_path)
 

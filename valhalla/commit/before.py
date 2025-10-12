@@ -3,7 +3,7 @@ from typing import List
 
 from valhalla.common.logger import error, info
 from valhalla.common.resolver import resolve
-from version.version_to_release import BASE_PREFIX
+from valhalla.version.version_to_release import BASE_PREFIX
 
 
 def execute(commands: List[str]):

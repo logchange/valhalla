@@ -122,7 +122,7 @@ class TagConfig:
 
 class Config:
     def __init__(self,
-                 version: VersionConfig,
+                 version_config: VersionConfig,
                  variables: dict,
                  git_host: str,
                  commit_before_release: CommitConfig,
@@ -130,7 +130,7 @@ class Config:
                  tag_config: TagConfig,
                  commit_after_release: CommitConfig,
                  merge_request: MergeRequestConfig):
-        self.version = version
+        self.version_config = version_config
         self.variables = variables
         self.git_host = git_host
         self.commit_before_release = commit_before_release
@@ -141,7 +141,7 @@ class Config:
 
     def __repr__(self):
         return f" Config( \n" \
-               f"   version={self.version} \n" \
+               f"   version_config={self.version_config} \n" \
                f"   variables={self.variables} \n" \
                f"   git_host={self.git_host} \n" \
                f"   commit_before_release={self.commit_before_release} \n" \
@@ -230,7 +230,7 @@ def get_commit_part(commit_config_dict: dict) -> CommitConfig | None:
 
 
 def get_release_config_part(release_config_dict: dict) -> ReleaseConfig:
-    description_dict = release_config_dict['description']
+    description_dict = get_from_dict(release_config_dict, 'description', False)
     description = get_release_description_config_part(description_dict)
 
     milestones = get_from_dict(release_config_dict, 'milestones', False)
@@ -243,7 +243,9 @@ def get_release_config_part(release_config_dict: dict) -> ReleaseConfig:
 
 
 def get_release_description_config_part(description_dict: dict) -> ReleaseDescriptionConfig:
-    from_command = description_dict['from_command']
+    if description_dict is None or description_dict == {}:
+        return ReleaseDescriptionConfig("")
+    from_command = get_from_dict(description_dict, 'from_command', True)
     return ReleaseDescriptionConfig(from_command)
 
 
@@ -251,7 +253,7 @@ def get_release_assets_config_part(assets_dict: dict) -> ReleaseAssetsConfig:
     if assets_dict is None:
         return ReleaseAssetsConfig([])
 
-    links_dict = assets_dict['links']
+    links_dict = get_from_dict(assets_dict, 'links', False)
     links = get_release_assets_links_config_part(links_dict)
 
     return ReleaseAssetsConfig(links)
@@ -300,11 +302,10 @@ def get_merge_request_part(merge_request_dict: dict) -> MergeRequestConfig:
 def get_from_dict(d: dict, key: str, required: bool):
     try:
         return d[key]
-    except KeyError as e:
+    except KeyError as _:
         if required:
-            print(e)
             error(f"Missing required {key} in valhalla.yml!")
-            exit(1)
+            raise RuntimeError(f"Missing required {key} in valhalla.yml!")
         else:
             info(f"Could not find optional filed: {key}")
             return None
