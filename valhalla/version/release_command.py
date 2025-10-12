@@ -16,7 +16,7 @@ def get_version_to_release_from_command(release_kinds: List[ReleaseKind]) -> Ver
             return get_version_to_release_from_str(command, release_kinds)
         else:
             error(
-                'This is not a correct release command! VALHALLA_RELEASE_CMD should start from release- prefix, f.e. release-1.2.3')
+                f'This is not a correct release command! VALHALLA_RELEASE_CMD should start from {BASE_PREFIX} prefix, f.e. {BASE_PREFIX}1.2.3')
             exit(-1)
     else:
         info("Cloud not find VALHALLA_RELEASE_CMD environment variable, skipping and going to check branch name")

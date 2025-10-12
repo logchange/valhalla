@@ -3,6 +3,7 @@ from typing import List
 
 from valhalla.common.logger import error, info
 from valhalla.common.resolver import resolve
+from valhalla.version.version_to_release import BASE_PREFIX
 
 
 def execute(commands: List[str]):
@@ -22,12 +23,12 @@ def execute(commands: List[str]):
                       f"Executing command {command} finished with code: {result.returncode} , valhalla cannot \n" +
                       f"continue releasing process! Fix it and retry!\n" +
                       f"Delete this branch (and tag if created), fix your main branch \n"
-                      f"and create release-* branch again, this simplifies fixes and reduce mistakes \n"
+                      f"and create {BASE_PREFIX}* branch again, this simplifies fixes and reduce mistakes \n"
                       f"-----------------------------------------------------------\n\n")
                 exit(result.returncode)
             else:
                 info(f"Successfully executed command: '{command}'")
-    except subprocess.CalledProcessError as e: # run is called with check=False, so it should not be called
+    except subprocess.CalledProcessError as e:  # run is called with check=False, so it should not be called
         error(f"Error executing command '{e.cmd}': {e.stderr}")
         for line in e.output.splitlines():
             error("------" + line)
@@ -35,4 +36,3 @@ def execute(commands: List[str]):
     except Exception as e:
         error(f"Exception occurred: {str(e)} during executing command")
         exit(1)
-

@@ -32,5 +32,7 @@ class Description:
             return stdout
         except subprocess.CalledProcessError as e:
             error(f"Error executing command '{e.cmd}': {e.stderr}")
+            return "error, check valhalla release logs"
         except Exception as e:
             error(f"Error occurred: {str(e)}")
+            return "error, check valhalla release logs"
