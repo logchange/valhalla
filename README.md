@@ -1,7 +1,8 @@
-# 🌌 valhalla 🌌
+<p align="center">
+  <span>🌌 valhalla 🌌</span>
+</p>
 
 <p align="center">
-    <h1>🌌 valhalla 🌌</h1>
     <a href="https://github.com/logchange/valhalla/graphs/contributors">
         <img src="https://img.shields.io/github/contributors/logchange/valhalla" alt="Contributors"/></a>
     <a href="https://github.com/logchange/valhalla/pulse">
