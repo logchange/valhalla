@@ -6,7 +6,7 @@ from valhalla.version.version_to_release import VersionToRelease, ReleaseKind, B
     get_version_to_release_from_str
 
 
-def get_version_to_release(release_kinds: List[ReleaseKind]) -> VersionToRelease:
+def get_version_to_release_from_branch_name(release_kinds: List[ReleaseKind]) -> VersionToRelease:
     ci_commit_branch = os.environ.get('CI_COMMIT_BRANCH')
 
     if ci_commit_branch:
@@ -16,7 +16,7 @@ def get_version_to_release(release_kinds: List[ReleaseKind]) -> VersionToRelease
             return get_version_to_release_from_str(ci_commit_branch, release_kinds)
         else:
             error('This is not a release branch! This script should not be run! The name of the branch must be '
-                  'release-X.X.X')
+                  f'{BASE_PREFIX}X.X.X or just {BASE_PREFIX} if you want to use version from command')
             error('Check valhalla configration and manual !')
             exit(-1)
     else:

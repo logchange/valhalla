@@ -1,8 +1,20 @@
 from typing import List
+
 from yaml import safe_load
 
-from valhalla.common.logger import info, error, warn
+from valhalla.common.logger import info, error
 from valhalla.extends.valhalla_extends import ValhallaExtends
+
+
+class VersionConfig:
+    def __init__(self, from_command: str):
+        self.from_command = from_command
+
+    def __repr__(self):
+        return f"\n" \
+               f"   VersionConfig( \n" \
+               f"     from_command={self.from_command} \n" \
+               f"   )"
 
 
 class MergeRequestConfig:
@@ -80,7 +92,8 @@ class ReleaseDescriptionConfig:
 
 
 class ReleaseConfig:
-    def __init__(self, description_config: ReleaseDescriptionConfig, milestones: List[str], name: str, assets_config: ReleaseAssetsConfig):
+    def __init__(self, description_config: ReleaseDescriptionConfig, milestones: List[str], name: str,
+                 assets_config: ReleaseAssetsConfig):
         self.description_config = description_config
         self.milestones = milestones
         self.name = name
@@ -94,7 +107,8 @@ class ReleaseConfig:
                f"           release_title={self.name} \n" \
                f"           assets_config={self.assets_config} \n" \
                f"   )"
-    
+
+
 class TagConfig:
     def __init__(self, name: str):
         self.name = name
@@ -108,6 +122,7 @@ class TagConfig:
 
 class Config:
     def __init__(self,
+                 version: VersionConfig,
                  variables: dict,
                  git_host: str,
                  commit_before_release: CommitConfig,
@@ -115,6 +130,7 @@ class Config:
                  tag_config: TagConfig,
                  commit_after_release: CommitConfig,
                  merge_request: MergeRequestConfig):
+        self.version = version
         self.variables = variables
         self.git_host = git_host
         self.commit_before_release = commit_before_release
@@ -125,6 +141,7 @@ class Config:
 
     def __repr__(self):
         return f" Config( \n" \
+               f"   version={self.version} \n" \
                f"   variables={self.variables} \n" \
                f"   git_host={self.git_host} \n" \
                f"   commit_before_release={self.commit_before_release} \n" \
@@ -147,6 +164,9 @@ def get_config(path: str) -> Config:
 
             info("yml_dict to read config from: " + str(yml_dict))
 
+            version_dict = get_from_dict(yml_dict, 'version', False)
+            version = get_version_part(version_dict)
+
             variables = get_from_dict(yml_dict, 'variables', False)
 
             git_host = get_from_dict(yml_dict, 'git_host', True)
@@ -167,6 +187,7 @@ def get_config(path: str) -> Config:
             merge_request = get_merge_request_part(merge_request_dict)
 
             config = Config(
+                version,
                 variables,
                 git_host,
                 commit_before_release,
@@ -183,6 +204,14 @@ def get_config(path: str) -> Config:
     except FileNotFoundError as e:
         error(f"No config found at path: {path} error: {e}")
         exit(-1)
+
+
+def get_version_part(version_dict) -> VersionConfig | None:
+    if version_dict is None or version_dict == {}:
+        return VersionConfig("")
+
+    from_command = get_from_dict(version_dict, 'from_command', False)
+    return VersionConfig(from_command)
 
 
 def get_commit_part(commit_config_dict: dict) -> CommitConfig | None:
@@ -203,7 +232,7 @@ def get_commit_part(commit_config_dict: dict) -> CommitConfig | None:
 def get_release_config_part(release_config_dict: dict) -> ReleaseConfig:
     description_dict = release_config_dict['description']
     description = get_release_description_config_part(description_dict)
-    
+
     milestones = get_from_dict(release_config_dict, 'milestones', False)
     name = get_from_dict(release_config_dict, 'name', False)
 
@@ -243,6 +272,7 @@ def get_release_assets_links_config_part(links_list_of_dicts: List[dict]) -> Lis
 
     return result
 
+
 def get_tag_config_part(tag_config_dict: dict) -> TagConfig | None:
     if tag_config_dict is None:
         return None
@@ -253,7 +283,7 @@ def get_tag_config_part(tag_config_dict: dict) -> TagConfig | None:
 
 def get_merge_request_part(merge_request_dict: dict) -> MergeRequestConfig:
     if merge_request_dict is None:
-        return MergeRequestConfig(False, None, None, None, None)
+        return MergeRequestConfig(False, "", "", "", [])
 
     enabled = get_from_dict(merge_request_dict, 'enabled', True)
     merge_request_other_options_required = enabled
@@ -265,6 +295,7 @@ def get_merge_request_part(merge_request_dict: dict) -> MergeRequestConfig:
 
     reviewers = get_from_dict(merge_request_dict, 'reviewers', False)
     return MergeRequestConfig(enabled, target_branch, title, description, reviewers)
+
 
 def get_from_dict(d: dict, key: str, required: bool):
     try:

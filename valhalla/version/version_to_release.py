@@ -1,6 +1,6 @@
-import re
 import os
-
+import re
+import subprocess
 from typing import List
 
 from valhalla.common.logger import info, error
@@ -27,6 +27,33 @@ class VersionToRelease:
 
     def get_config_file_path(self):
         return self.release_kind.path + "/" + self.release_kind.filename
+
+    def is_version_empty(self):
+        return self.version_number_to_release is None or self.version_number_to_release.strip() == ""
+
+    def from_config(self, config):
+        if config.version is None or config.version.from_command is None or config.version.from_command.strip() == "":
+            info("Version is not specified in valhalla.yml, skipping")
+            return
+        else:
+            self.__get_version_from_command(config.version.from_command)
+        pass
+
+    def __get_version_from_command(self, from_command: str):
+        try:
+            result = subprocess.run(from_command, shell=True, check=True, capture_output=True, text=True)
+            stdout = result.stdout
+            stderr = result.stderr
+            if stdout:
+                info(f"Output for command '{from_command}':\n{stdout}")
+            if stderr:
+                error(f"Error output for command '{from_command}':\n{stderr}")
+
+            self.version_number_to_release = stdout
+        except subprocess.CalledProcessError as e:
+            error(f"Error executing command '{e.cmd}': {e.stderr}")
+        except Exception as e:
+            error(f"Error occurred: {str(e)}")
 
 
 def get_release_kinds(path: str) -> List[ReleaseKind]:
@@ -72,14 +99,14 @@ def get_version_to_release_from_str(value: str, release_kinds: List[ReleaseKind]
                 return __matched(value, prefix, release_kind)
 
     info(f"{value} doesn't match specific release kind, checking main kind")
-    # now if specific release kind not found we search for main
+    # now if specific release kind not found, we search for the main
     for release_kind in release_kinds:
         if release_kind.suffix == "":
             prefix = BASE_PREFIX
             if value.startswith(prefix):
                 return __matched(value, prefix, release_kind)
 
-    __no_matching_release_kind(value, release_kinds)
+    return __no_matching_release_kind(value, release_kinds)
 
 
 def __get_branch_prefix(release_kind: ReleaseKind) -> str:
@@ -94,7 +121,6 @@ def __matched(value: str, prefix: str, release_kind: ReleaseKind) -> VersionToRe
     info(
         f"Branch name or VALHALLA_RELEASE_CMD is {value} and has prefix {prefix} and matches with release kind {release_kind}")
     project_version = value[len(prefix):]
-    info(f'Project version that is going to be released: {project_version}')
     return VersionToRelease(project_version, release_kind)
 
 
