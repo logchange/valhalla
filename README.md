@@ -1,8 +1,18 @@
-# 🌌 valhalla
+# 🌌 valhalla 🌌
 
-🌌 valhalla is a toolkit designed to streamline the release of new versions of software. 🌌
-
-- [dockerhub](https://hub.docker.com/repository/docker/logchange/valhalla/)
+<p align="center">
+    <h1>🌌 valhalla 🌌</h1>
+    <a href="https://github.com/logchange/valhalla/graphs/contributors">
+        <img src="https://img.shields.io/github/contributors/logchange/valhalla" alt="Contributors"/></a>
+    <a href="https://github.com/logchange/valhalla/pulse">
+        <img src="https://img.shields.io/github/commit-activity/m/logchange/valhalla" alt="Activity"/></a>
+    <a href="https://hub.docker.com/repository/docker/logchange/valhalla/">
+        <img src="https://img.shields.io/docker/v/logchange/valhalla?sort=semver&color=green&label=DockerHub" alt="DockerHub"/></a>
+    <a href="https://hub.docker.com/repository/docker/logchange/valhalla/">
+        <img src="https://img.shields.io/docker/pulls/logchange/valhalla" alt="DockerHub Pulls"/></a>
+    <a href="https://codecov.io/gh/logchange/valhalla">
+        <img src="https://codecov.io/gh/logchange/valhalla/graph/badge.svg?token=SP3V6ZQ039" alt="codecov"/></a>
+</p>
 
 ## [Documentation](https://logchange.dev/tools/valhalla/)
 
