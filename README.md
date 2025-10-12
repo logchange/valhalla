@@ -1,5 +1,5 @@
 <p align="center">
-  <span>🌌 valhalla 🌌</span>
+  <span style="font-size: 2em">🌌 valhalla 🌌</span>
 </p>
 
 <p align="center">
