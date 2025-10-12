@@ -1,6 +1,4 @@
-<p align="center">
-  <span style="font-size: 2em">🌌 valhalla 🌌</span>
-</p>
+# 🌌 valhalla 🌌
 
 <p align="center">
     <a href="https://github.com/logchange/valhalla/graphs/contributors">
