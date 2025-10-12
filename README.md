@@ -4,6 +4,12 @@
 
 - [dockerhub](https://hub.docker.com/repository/docker/logchange/valhalla/)
 
+## [Documentation](https://logchange.dev/tools/valhalla/)
+
+Visit **[logchange.dev/tools/valhalla](https://logchange.dev/tools/valhalla/)** to read the full documentation, explore 
+usage examples, and learn how to get the most out of Valhalla.
+
+
 ### 📐 background and basic concept
 
 - **complex releasing process:** Creating a new software release involves a multitude of intricate steps. This
@@ -25,76 +31,7 @@ saving time, and promoting compliance with established regulations.
 
 ### ⚙️ configuration
 
-- create `valhalla.yml` in your project (check
-  out [examples](https://github.com/logchange/valhalla/tree/master/examples))
-
-```yml
-# This file is used by valhalla tool to create release 🌌
-# Visit https://github.com/logchange/valhalla and leave a star 🌟
-# More info about configuration you can find https://github.com/logchange/valhalla#%EF%B8%8F-configuration ⬅️
-extends: # You can extend any file from URL! This helps keep configuration in one place!
-  - https://raw.githubusercontent.com/logchange/valhalla/master/valhalla-extends.yml
-
-# Define custom variables which can be used in any string with {}
-variables:
-  MY_VARIABLE: Some value
-git_host: gitlab # your project ci provider, supported [gitlab]  
-
-# define actions which have to happen before release and output should be committed
-commit_before_release:
-  enabled: True # if this is True commands from before will be performed and committed to branch
-  username: Test1234 # git config username
-  email: test-valhalla@logchange.dev # git config email
-  msg: Releasing version {VERSION} # commit message, you can use string predefined variables
-  before: # list of bash commands, you can use string predefined variables, custom variables or system environment variables!
-    - echo "test" > some_file4.md
-    - mkdir -p changelog/v{VERSION}
-    - echo "Super release description for tests generated at {CI_COMMIT_TIMESTAMP}" > changelog/v{VERSION}/version_summary.md
-
-# definition of release which will be created
-release:
-  name: "Release {VERSION}" # optional filed, you can use string predefined variables (default name is VERSION)
-  description:
-    # bash command with will be executed and output will be used as 
-    # release description, you can use string predefined variables
-    from_command: "cat changelog/v{VERSION}/version_summary.md"
-  milestones:
-    - M {VERSION_MAJOR}.{VERSION_MINOR}
-    - Main
-  assets: # https://docs.gitlab.com/ee/api/releases/#create-a-release
-    links:
-      - name: Documentation # you can use string predefined variables
-        url: https://google.com/q?={VERSION} # you can use string predefined variables
-        link_type: other # The type of the link: other, runbook, image, package.
-      - name: Docker Image # you can use string predefined variables
-        url: https://dockerhub.com/q?={VERSION} # you can use string predefined variables
-        link_type: image # The type of the link: other, runbook, image, package.
-        
-# definition of tag which will be created
-tag:
-  name: "Tag {VERSION}" # optional filed, you can use string predefined variables (default name is VERSION) 
-  
-# define actions which have to happen after release and output should be committed
-commit_after_release:
-  enabled: True
-  username: Test1234
-  email: test-valhalla@logchange.dev
-  msg: Preparation for next development cycle
-  before:
-    - echo "test" > prepare_next_iteration.md
-
-# define merge request from release breach to your default 
-# branch with changes from commit_before_release and commit_after_release
-merge_request:
-  enabled: True # if this is True merge request will be created
-  target_branch: hotfix-{VERSION} # optional property (default branch if empty) defining target branch for merge/pull request. Supports regexp
-  title: Releasing version {VERSION} and preparation for next development cycle # you can use string predefined variables
-  description: Hello world! I have just released {VERSION} # optional filed, you can use string predefined variables
-  reviewers:
-    - peter.zmilczak # usernames which will be reviews of created MR
-    - some_unknown_nick # if username cannot be found you can check logs
-```
-
+- Create `valhalla.yml` in your project (check out [examples](https://github.com/logchange/valhalla/tree/master/examples)) (check out [reference](https://logchange.dev/tools/valhalla/reference/#basic-structure))
 - Create access token and pass it to CI as environment variable `VALHALLA_TOKEN`
 - Update or CI/CD scripts to use valhalla (see below for examples)
 - Update your `.gitignore` ! see [link](#-gitignore)

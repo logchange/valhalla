@@ -3,6 +3,8 @@
 # More info about configuration you can find https://github.com/logchange/valhalla#%EF%B8%8F-configuration ⬅️
 extends:
   - https://raw.githubusercontent.com/logchange/valhalla/master/valhalla-extends.yml
+version:
+  from_command: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//'"
 variables:
   MY_VARIABLE: Some value
   PARENT_VARIABLE_OVERRIDE: new value from child yml! It works!
