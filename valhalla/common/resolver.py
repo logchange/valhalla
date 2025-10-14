@@ -9,26 +9,30 @@ VERSION_MINOR = "not_set"
 VERSION_PATCH = "not_set"
 VERSION_SLUG = "not_set"
 VALHALLA_TOKEN = "not_set"
-AUTHOR="not_set"
+AUTHOR = "not_set"
 CUSTOM_VARIABLES_DICT = dict()
 
 
-def init_str_resolver(version: str, token: str, author: str):
+def init_str_resolver(token: str, author: str):
+    global VALHALLA_TOKEN
+    global AUTHOR
+
+    VALHALLA_TOKEN = token
+    AUTHOR = author
+
+
+def init_str_resolver_set_version(version: str):
     global VERSION
     global VERSION_MAJOR
     global VERSION_MINOR
     global VERSION_PATCH
     global VERSION_SLUG
-    global VALHALLA_TOKEN
-    global AUTHOR
 
     VERSION = version
     VERSION_MAJOR = __get_major(version)
     VERSION_MINOR = __get_minor(version)
     VERSION_PATCH = __get_patch(version)
     VERSION_SLUG = __get_slug(version)
-    VALHALLA_TOKEN = token
-    AUTHOR = author
 
 
 def init_str_resolver_custom_variables(variables: dict):
@@ -41,10 +45,10 @@ def init_str_resolver_custom_variables(variables: dict):
 
 
 def resolve(string: str):
-    if VERSION == "not_set":
+    if VALHALLA_TOKEN == "not_set":
         error("There was no init_str_resolver(...) call in the code, so resolving strings does not work!")
         error("There is bug in valhalla! Please report it here: https://github.com/logchange/valhalla/issues")
-        exit(1)
+        raise RuntimeError("There was no init_str_resolver(...) call in the code, so resolving strings does not work!")
 
     # hierarchy
     string = __resolve_predefined(string)

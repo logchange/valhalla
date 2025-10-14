@@ -1,0 +1,7 @@
+# Base extended configuration for tests
+variables:
+  BASE_VAR: base
+
+git_host: gitlab
+
+release: {}

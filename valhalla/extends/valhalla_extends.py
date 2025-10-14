@@ -10,7 +10,8 @@ from valhalla.common.resolver import resolve
 
 def get_from_url(url):
     result = ""
-    response = requests.get(resolve(url))
+    resolved_url = resolve(url)
+    response = requests.get(resolved_url)
 
     if response.status_code != 200:
         info(f"Error: Received status code {response.status_code} from url: {url}")

@@ -1,0 +1,7 @@
+# Child configuration that extends base for tests
+extends:
+  - http://valhalla.test/valhalla-extended.yml
+
+# Child can optionally override or add variables
+variables:
+  CHILD_VAR: child

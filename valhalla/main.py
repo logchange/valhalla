@@ -8,7 +8,7 @@ from valhalla.commit.commit import GitRepository
 from valhalla.common.get_config import get_config, CommitConfig, MergeRequestConfig, Config
 from valhalla.common.logger import info, error, init_logger
 from valhalla.version.release_command import get_version_to_release_from_command
-from valhalla.common.resolver import init_str_resolver, init_str_resolver_custom_variables, resolve
+from valhalla.common.resolver import init_str_resolver, init_str_resolver_set_version, init_str_resolver_custom_variables, resolve
 from valhalla.release.assets import Assets
 from valhalla.release.description import Description
 from valhalla.version.version_to_release import get_release_kinds, VersionToRelease
@@ -18,8 +18,14 @@ from valhalla.version.version_to_release import BASE_PREFIX
 def start():
     info(f'Release the Valhalla!')
 
+    token = get_valhalla_token()
+    author = get_author()
+    init_logger(token)
+    init_str_resolver(token, author)
+
     version_to_release = __version_to_release()
     config = get_config(version_to_release.get_config_file_path())
+    init_str_resolver_custom_variables(config.variables)
 
     if version_to_release.is_version_empty():
         version_to_release.from_config(config)
@@ -31,14 +37,7 @@ def start():
         exit(-1)
 
     info(f'Project version that is going to be released: {version_to_release.version_number_to_release}')
-
-    token = get_valhalla_token()
-    author = get_author()
-    init_logger(token)
-
-    init_str_resolver(version_to_release.version_number_to_release, token, author)
-
-    init_str_resolver_custom_variables(config.variables)
+    init_str_resolver_set_version(version_to_release.version_number_to_release)
 
     commit(config.commit_before_release, token)
 
