@@ -10,7 +10,7 @@ class MainStartTest(unittest.TestCase):
         # given: version_to_release is present, config is provided, and all steps are executed
         mock_vtr = MagicMock()
         mock_vtr.is_version_empty.return_value = False
-        mock_vtr.get_config_file_path.return_value = "resources/valhalla.yml"
+        mock_vtr.get_config_file_path.return_value = "test/resources/valhalla.yml"
         mock_vtr.version_number_to_release = "1.2.3"
 
         # mock requests.get used by ValhallaExtends to return local extended file content
@@ -21,7 +21,7 @@ class MainStartTest(unittest.TestCase):
                 def __init__(self, text):
                     self.text = text
 
-            with open("resources/valhalla-extended.yml", "r") as f:
+            with open("test/resources/valhalla-extended.yml", "r") as f:
                 return R(f.read())
 
         with patch('valhalla.main.__version_to_release', return_value=mock_vtr), \
