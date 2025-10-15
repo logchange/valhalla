@@ -1,4 +1,5 @@
 from typing import List
+import os
 
 from yaml import safe_load
 
@@ -153,7 +154,7 @@ class Config:
 
 
 def get_config(path: str) -> Config:
-    info(f"Trying to load config from: {path}")
+    info(f"Trying to load config from: {path} - current working directory: {os.getcwd()}")
     try:
         with open(path) as f:
             org_yml_dict = safe_load(f)

@@ -2,14 +2,16 @@ import os
 import unittest
 from unittest.mock import patch
 
-from valhalla.common.resolver import resolve, init_str_resolver, init_str_resolver_custom_variables
+from valhalla.common.resolver import resolve, init_str_resolver, init_str_resolver_custom_variables, \
+    init_str_resolver_set_version
 
 
 class TestStringResolver(unittest.TestCase):
     def test_resolve_no_custom_vars(self):
         # given:
-        init_str_resolver("1.0", "token123", "kot")
-        init_str_resolver_custom_variables(None)
+        init_str_resolver("token123", "kot")
+        init_str_resolver_set_version("1.0")
+        init_str_resolver_custom_variables({})
 
         # when:
         resolved_string = resolve("Testing {VERSION}")
@@ -19,22 +21,22 @@ class TestStringResolver(unittest.TestCase):
 
     def test_resolve_predefined(self):
         # given:
-        init_str_resolver("1.0", "token123", "kot")
+        init_str_resolver("token123", "kot")
+        init_str_resolver_set_version("1.0")
         init_str_resolver_custom_variables({"CUSTOM_VAR": "value123"})
 
         # when:
         resolved_string = resolve("Testing {VERSION}")
         resolved_string_author = resolve("Testing {AUTHOR}")
 
-
         # then:
         self.assertEqual("Testing 1.0", resolved_string)
         self.assertEqual("Testing kot", resolved_string_author)
 
-
     def test_resolve_predefined_version(self):
         # given:
-        init_str_resolver("1.2.14-RC01", "token123", "kot")
+        init_str_resolver("token123", "kot")
+        init_str_resolver_set_version("1.2.14-RC01")
         init_str_resolver_custom_variables({"CUSTOM_VAR": "value123"})
 
         # when:
@@ -46,7 +48,8 @@ class TestStringResolver(unittest.TestCase):
 
     def test_resolve_predefined_version_slug(self):
         # given:
-        init_str_resolver("1.0.0", "token123", "kot")
+        init_str_resolver("token123", "kot")
+        init_str_resolver_set_version("1.0.0")
         init_str_resolver_custom_variables({"CUSTOM_VAR": "value123"})
 
         # when:
@@ -57,7 +60,7 @@ class TestStringResolver(unittest.TestCase):
 
     def test_resolve_custom_variables(self):
         # given:
-        init_str_resolver("1.0", "token123", "kot")
+        init_str_resolver("token123", "kot")
         init_str_resolver_custom_variables({"CUSTOM_VAR": "value123"})
 
         # when:
@@ -69,7 +72,7 @@ class TestStringResolver(unittest.TestCase):
     @patch.dict(os.environ, {"ENV_VAR": "env_value123"})
     def test_resolve_from_env(self):
         # given:
-        init_str_resolver("1.0", "token123", "kot")
+        init_str_resolver("token123", "kot")
         init_str_resolver_custom_variables({"CUSTOM_VAR": "value123"})
 
         # when:
