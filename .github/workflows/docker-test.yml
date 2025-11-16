@@ -25,12 +25,12 @@ jobs:
     - name: Build test image
       uses: docker/build-push-action@v5
       with:
-      context: .
-      load: true
-      tags: ${{ env.TEST_IMAGE_TAG }}
+        context: .
+        load: true
+        tags: ${{ env.TEST_IMAGE_TAG }}
 
     - name: Test
       uses: brpaz/structure-tests-action@1.3.0
       with:
-      image: ${{ env.TEST_IMAGE_TAG }}
-      configFile: docker-test.yaml
+        image: ${{ env.TEST_IMAGE_TAG }}
+        configFile: docker-test.yaml
