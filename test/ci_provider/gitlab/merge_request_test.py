@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import patch, MagicMock
+
 from valhalla.ci_provider.gitlab.merge_request import GitLabValhallaMergeRequest, get_description
 from valhalla.common.get_config import MergeRequestConfig
 
