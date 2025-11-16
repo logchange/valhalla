@@ -36,10 +36,10 @@ class MainStartTest(unittest.TestCase):
                 patch('valhalla.main.commit') as mock_commit, \
                 patch('valhalla.main.create_release') as mock_create_release, \
                 patch('valhalla.main.create_merge_request') as mock_create_mr:
-            from valhalla.main import main
+            from valhalla.main import start
 
             # when: running start should not raise
-            main()
+            start()
 
             # logger & resolver initialization
             mock_get_token.assert_called_once()

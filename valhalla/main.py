@@ -36,9 +36,8 @@ def print_help():
     print(msg)
 
 
-def main(argv=None):
-    if argv is None:
-        argv = sys.argv[1:]
+def main():
+    argv = sys.argv[1:]
 
     if not argv:
         # Default behavior: start the process
@@ -54,6 +53,7 @@ def main(argv=None):
         return
 
     # Unknown command -> print help and exit with error
+    print("Unknown command: {}".format(argv[0]))
     print_help()
     sys.exit(1)
 
