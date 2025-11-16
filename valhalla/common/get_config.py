@@ -303,7 +303,7 @@ def get_merge_request_part(merge_request_dict: dict) -> MergeRequestConfig:
 def get_from_dict(d: dict, key: str, required: bool):
     try:
         return d[key]
-    except KeyError as _:
+    except KeyError:
         if required:
             error(f"Missing required {key} in valhalla.yml!")
             raise RuntimeError(f"Missing required {key} in valhalla.yml!")
