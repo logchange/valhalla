@@ -3,12 +3,14 @@ from unittest.mock import patch, MagicMock
 from valhalla.ci_provider.gitlab.merge_request import GitLabValhallaMergeRequest, get_description
 from valhalla.common.get_config import MergeRequestConfig
 
+
 class TestGitLabValhallaMergeRequest(unittest.TestCase):
 
     @patch("valhalla.ci_provider.gitlab.merge_request.info")
     def test_get_description_with_default(self, mock_info):
         description = get_description("")
-        self.assertEqual(description, "Created by Valhalla! Visit https://github.com/logchange/valhalla and leave a star!")
+        self.assertEqual(description,
+                         "Created by Valhalla! Visit https://github.com/logchange/valhalla and leave a star!")
         mock_info.assert_called_with("merge_request.description not specified, using default")
 
     @patch("valhalla.ci_provider.gitlab.merge_request.info")
@@ -22,7 +24,8 @@ class TestGitLabValhallaMergeRequest(unittest.TestCase):
     @patch("valhalla.ci_provider.gitlab.merge_request.resolve")
     @patch("valhalla.ci_provider.gitlab.merge_request.info")
     @patch("valhalla.ci_provider.gitlab.merge_request.warn")
-    def test_create_merge_request(self, mock_warn, mock_info, mock_resolve, mock_get_project_id, mock_get_gitlab_client):
+    def test_create_merge_request(self, mock_warn, mock_info, mock_resolve, mock_get_project_id,
+                                  mock_get_gitlab_client):
         with patch.dict('os.environ', {'CI_COMMIT_BRANCH': 'feature-branch', 'CI_DEFAULT_BRANCH': 'main'}):
             # given:
             mock_get_project_id.return_value = "123"
@@ -39,10 +42,10 @@ class TestGitLabValhallaMergeRequest(unittest.TestCase):
 
             config = MergeRequestConfig(
                 enabled=True,
-                title="Test MR",
-                description=None,
                 target_branch="develop",
-                reviewers=None
+                title="Test MR",
+                description="",
+                reviewers=[]
             )
 
             # when:

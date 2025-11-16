@@ -5,6 +5,7 @@ from valhalla.ci_provider.gitlab.common import get_gitlab_client, get_project_id
 from valhalla.common.get_config import MergeRequestConfig
 from valhalla.common.logger import info, warn
 from valhalla.common.resolver import resolve
+from valhalla.ci_provider.git_host import MergeRequest
 
 
 def get_description(description: str):
@@ -15,7 +16,7 @@ def get_description(description: str):
     return description
 
 
-class GitLabValhallaMergeRequest:
+class GitLabValhallaMergeRequest(MergeRequest):
     def __init__(self):
         self.gl = get_gitlab_client()
         self.project = self.gl.projects.get(get_project_id(), lazy=True)

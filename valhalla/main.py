@@ -1,4 +1,4 @@
-from valhalla.ci_provider import get_provider
+from valhalla.ci_provider.git_host import GitHost
 from valhalla.ci_provider.get_token import get_valhalla_token
 from valhalla.commit import before
 from valhalla.commit.commit import GitRepository
@@ -12,25 +12,17 @@ from valhalla.version.version_to_release import get_release_kinds, VersionToRele
 from valhalla.version.version_to_release import BASE_PREFIX
 
 
-def get_author():
-    provider = get_provider()
-    if provider == "github":
-        from valhalla.ci_provider.github.common import get_author as gh_get_author
-        return gh_get_author()
-    else:
-        from valhalla.ci_provider.gitlab.common import get_author as gl_get_author
-        return gl_get_author()
-
-
 def start():
     info(f'Release the Valhalla!')
 
+    git_host = GitHost()
+
     token = get_valhalla_token()
-    author = get_author()
+    author = git_host.get_author()
     init_logger(token)
     init_str_resolver(token, author)
 
-    version_to_release = __version_to_release()
+    version_to_release = __version_to_release(git_host)
     config = get_config(version_to_release.get_config_file_path())
     init_str_resolver_custom_variables(config.variables)
 
@@ -48,55 +40,39 @@ def start():
 
     commit(config.commit_before_release, token)
 
-    create_release(config, version_to_release.version_number_to_release)
+    create_release(git_host, config, version_to_release.version_number_to_release)
 
     commit(config.commit_after_release, token)
 
-    create_merge_request(config.merge_request)
+    create_merge_request(git_host, config.merge_request)
 
 
-def __version_to_release() -> VersionToRelease:
+def __version_to_release(git_host: GitHost) -> VersionToRelease:
     current_dir = "."
     release_kinds = get_release_kinds(current_dir)
     version_to_release = get_version_to_release_from_command(release_kinds)
 
     if version_to_release is None:
-        provider = get_provider()
-        if provider == "github":
-            from valhalla.ci_provider.github.get_version import get_version_to_release_from_branch_name as get_v
-        else:
-            from valhalla.ci_provider.gitlab.get_version import get_version_to_release_from_branch_name as get_v
-        version_to_release = get_v(release_kinds)
+        version_to_release = git_host.get_version_to_release(release_kinds)
 
     return version_to_release
 
 
-def create_merge_request(merge_request_config: MergeRequestConfig):
+def create_merge_request(git_host: GitHost, merge_request_config: MergeRequestConfig):
     if merge_request_config is None:
         info("merge_request not specified in valhalla.yml, skipping")
         return
     if merge_request_config.enabled:
         info("Preparing to create merge request")
-
-        provider = get_provider()
-        if provider == "github":
-            from valhalla.ci_provider.github.merge_request import GitHubValhallaPullRequest as MergeRequest
-        else:
-            from valhalla.ci_provider.gitlab.merge_request import GitLabValhallaMergeRequest as MergeRequest
-        merge_request = MergeRequest()
-        merge_request.create(merge_request_config)
+        git_host.create_merge_request(merge_request_config)
     else:
         info("merge_request.enabled is False in valhalla.yml, skipping")
 
 
-def create_release(config: Config, version_to_release: str):
+def create_release(git_host: GitHost, config: Config, version_to_release: str):
     info("Preparing to create release")
-    provider = get_provider()
-    if provider == "github":
-        from valhalla.ci_provider.github.release import GitHubValhallaRelease as Release
-    else:
-        from valhalla.ci_provider.gitlab.release import GitLabValhallaRelease as Release
-    release = Release()
+    ReleaseImpl = git_host.get_release_impl()
+    release = ReleaseImpl()
     description = Description(config.release_config.description_config)
     assets = Assets(config.release_config.assets_config)
 

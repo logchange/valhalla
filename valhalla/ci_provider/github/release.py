@@ -5,9 +5,10 @@ from valhalla.ci_provider.github.common import get_repository_slug, get_api_url
 from valhalla.common.logger import info, warn
 from valhalla.release.assets import Assets
 from valhalla.release.description import Description
+from valhalla.ci_provider.git_host import Release
 
 
-class GitHubValhallaRelease:
+class GitHubValhallaRelease(Release):
     def __init__(self):
         self.api_url = get_api_url()
         self.repo = get_repository_slug()
