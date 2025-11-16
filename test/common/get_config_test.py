@@ -18,7 +18,7 @@ class GetConfigTest(unittest.TestCase):
         """
 
     @patch(
-        "builtins.open",
+        "valhalla.common.get_config.open",
         new_callable=mock_open,
         read_data="""
         git_host: gitlab
@@ -55,7 +55,7 @@ class GetConfigTest(unittest.TestCase):
         mock_open_file.assert_called_once_with(self.config_path)
 
     @patch(
-        "builtins.open",
+        "valhalla.common.get_config.open",
         new_callable=mock_open,
         read_data="""
         version:
@@ -76,7 +76,7 @@ class GetConfigTest(unittest.TestCase):
         mock_open_file.assert_called_once_with(self.config_path)
 
     @patch(
-        "builtins.open",
+        "valhalla.common.get_config.open",
         new_callable=mock_open,
         read_data="""
         git_host: gitlab
@@ -105,7 +105,7 @@ class GetConfigTest(unittest.TestCase):
         mock_open_file.assert_called_once_with(self.config_path)
 
     @patch(
-        "builtins.open",
+        "valhalla.common.get_config.open",
         new_callable=mock_open,
         read_data="""
         git_host: gitlab
@@ -136,7 +136,7 @@ class GetConfigTest(unittest.TestCase):
 
         mock_open_file.assert_called_once_with(self.config_path)
 
-    @patch("builtins.open", side_effect=FileNotFoundError)
+    @patch("valhalla.common.get_config.open", side_effect=FileNotFoundError)
     def test_get_config_file_not_found(self, mock_open_file):
         with self.assertRaises(SystemExit) as context:
             get_config(self.config_path)
@@ -145,7 +145,7 @@ class GetConfigTest(unittest.TestCase):
         self.assertEqual(context.exception.code, -1)
 
     @patch(
-        "builtins.open",
+        "valhalla.common.get_config.open",
         new_callable=mock_open,
         read_data="""
         git_host: gitlab
@@ -171,7 +171,7 @@ class GetConfigTest(unittest.TestCase):
         mock_open_file.assert_called_once_with(self.config_path)
 
     @patch(
-        "builtins.open",
+        "valhalla.common.get_config.open",
         new_callable=mock_open,
         read_data="""
         git_host: gitlab

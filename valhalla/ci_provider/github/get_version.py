@@ -7,26 +7,27 @@ from valhalla.version.version_to_release import VersionToRelease, ReleaseKind, B
 from valhalla.ci_provider.git_host import VersionToReleaseProvider
 
 
-class GitLabVersionToReleaseProvider(VersionToReleaseProvider):
+class GitHubVersionToReleaseProvider(VersionToReleaseProvider):
     def get_from_branch_name(self, release_kinds: List[ReleaseKind]) -> VersionToRelease:
-        ci_commit_branch = os.environ.get('CI_COMMIT_BRANCH')
+        # In GitHub Actions, branch name is available under GITHUB_REF_NAME
+        ref_name = os.environ.get('GITHUB_REF_NAME')
 
-        if ci_commit_branch:
-            info(f'Name of branch is: {ci_commit_branch}')
+        if ref_name:
+            info(f'Name of branch is: {ref_name}')
 
-            if ci_commit_branch.startswith(BASE_PREFIX):
-                return get_version_to_release_from_str(ci_commit_branch, release_kinds)
+            if ref_name.startswith(BASE_PREFIX):
+                return get_version_to_release_from_str(ref_name, release_kinds)
             else:
                 error('This is not a release branch! This script should not be run! The name of the branch must be '
                       f'{BASE_PREFIX}X.X.X or just {BASE_PREFIX} if you want to use version from command')
-                error('Check valhalla configration and manual !')
+                error('Check valhalla configuration and manual !')
                 exit(-1)
         else:
-            error('CI_COMMIT_BRANCH environment variable is not set. Are you using GitLab CI? If not change your '
-                  'valhalla configration!')
+            error('GITHUB_REF_NAME environment variable is not set. Are you using GitHub Actions? If not change your '
+                  'valhalla configuration!')
             exit(-1)
 
 
 def get_version_to_release_from_branch_name(release_kinds: List[ReleaseKind]) -> VersionToRelease:
-    # Backward compatible wrapper used in tests
-    return GitLabVersionToReleaseProvider().get_from_branch_name(release_kinds)
+    # Backward compatible wrapper
+    return GitHubVersionToReleaseProvider().get_from_branch_name(release_kinds)

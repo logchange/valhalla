@@ -1,7 +1,11 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-import os
+
+def fake_environ_get(key, default=None):
+    if key == "GITLAB_CI":
+        return "true"
+    return ""
 
 
 class MainStartTest(unittest.TestCase):
@@ -27,7 +31,8 @@ class MainStartTest(unittest.TestCase):
         with patch('valhalla.main.__version_to_release', return_value=mock_vtr), \
                 patch('valhalla.extends.valhalla_extends.requests.get', side_effect=_mock_requests_get), \
                 patch('valhalla.main.get_valhalla_token', return_value='TOKEN') as mock_get_token, \
-                patch('valhalla.main.get_author', return_value='AUTHOR') as mock_get_author, \
+                patch('os.environ.get', side_effect=fake_environ_get),\
+                patch('valhalla.ci_provider.git_host.GitHost.get_author', return_value='AUTHOR') as mock_get_author, \
                 patch('valhalla.main.commit') as mock_commit, \
                 patch('valhalla.main.create_release') as mock_create_release, \
                 patch('valhalla.main.create_merge_request') as mock_create_mr:
@@ -42,8 +47,8 @@ class MainStartTest(unittest.TestCase):
 
             # core actions
             self.assertEqual(mock_commit.call_count, 2, "commit should be called twice (before and after release)")
-            # create_release called with some Config and correct version
+            # create_release called with some Config and the correct version
             args, kwargs = mock_create_release.call_args
-            self.assertEqual(args[1], "1.2.3")
+            self.assertEqual(args[2], "1.2.3")
             # merge request config is default and disabled in our test YAML
             self.assertEqual(mock_create_mr.call_count, 1)

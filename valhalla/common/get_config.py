@@ -133,7 +133,7 @@ class Config:
                  merge_request: MergeRequestConfig):
         self.version_config = version_config
         self.variables = variables
-        self.git_host = git_host
+        self.git_host = git_host  # TODO, remove because it's not used anywhere'
         self.commit_before_release = commit_before_release
         self.release_config = release_config
         self.tag_config = tag_config
@@ -303,7 +303,7 @@ def get_merge_request_part(merge_request_dict: dict) -> MergeRequestConfig:
 def get_from_dict(d: dict, key: str, required: bool):
     try:
         return d[key]
-    except KeyError as _:
+    except KeyError:
         if required:
             error(f"Missing required {key} in valhalla.yml!")
             raise RuntimeError(f"Missing required {key} in valhalla.yml!")

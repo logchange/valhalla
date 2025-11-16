@@ -5,9 +5,10 @@ from valhalla.ci_provider.gitlab.common import get_gitlab_client, get_project_id
 from valhalla.common.logger import info
 from valhalla.release.assets import Assets
 from valhalla.release.description import Description
+from valhalla.ci_provider.git_host import Release
 
 
-class GitLabValhallaRelease:
+class GitLabValhallaRelease(Release):
     def __init__(self):
         self.gl = get_gitlab_client()
         self.project = self.gl.projects.get(get_project_id(), lazy=True)
