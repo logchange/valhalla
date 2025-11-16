@@ -17,7 +17,7 @@ from valhalla.version.version_to_release import BASE_PREFIX
 
 def print_help():
     msg = (
-        "🌌 valhalla is a toolkit designed to streamline the release of new versions of software. 🌌\n"
+        "🌌 valhalla is a toolkit designed to streamline the release of new versions of software 🌌\n"
         "\n"
         "Usage:\n"
         "  valhalla            Start the release process (same as 'valhalla start').\n"

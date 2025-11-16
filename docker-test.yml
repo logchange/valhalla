@@ -4,4 +4,4 @@ commandTests:
   - name:  "valhalla installed"
     command: "valhalla"
     args: ["--help"]
-    excludedOutput: ["valhalla is a toolkit designed to streamline the release of new versions of software"]
+    expectedOutput: [".*valhalla is a toolkit designed to streamline the release of new versions of software.*"]
