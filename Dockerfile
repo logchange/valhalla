@@ -44,5 +44,5 @@ RUN printf '#!/bin/sh\nexec python3 -u /opt/valhalla "$@"\n' \
 
 RUN ls -l /usr/local/bin/
 
-# we used to use CMD ["python3", "-u", "/opt/valhalla"] but valhalla is sipler :)
+# we used to use CMD ["python3", "-u", "/opt/valhalla"] but valhalla is simpler :)
 CMD ["valhalla"]
