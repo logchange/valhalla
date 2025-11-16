@@ -17,8 +17,6 @@ with open(reqs) as f:
                 pkg = "git"
             if pkg.startswith("python-gitlab"):
                 pkg = "gitlab"
-            if pkg.startswith("pytest-cov"):  # skip because we do not need it in released
-                continue
             importlib.import_module(pkg)
             print(f"[OK] {pkg}")
         except ImportError:
