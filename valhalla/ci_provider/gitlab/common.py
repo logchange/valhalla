@@ -30,6 +30,7 @@ def get_project_id():
     info("GitLab project id: " + project_id)
     return project_id
 
+
 def get_author():
     author = os.getenv("GITLAB_USER_LOGIN")
     info(f"Author: {author}")

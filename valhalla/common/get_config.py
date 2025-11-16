@@ -133,7 +133,7 @@ class Config:
                  merge_request: MergeRequestConfig):
         self.version_config = version_config
         self.variables = variables
-        self.git_host = git_host
+        self.git_host = git_host  # TODO, remove because it's not used anywhere'
         self.commit_before_release = commit_before_release
         self.release_config = release_config
         self.tag_config = tag_config
