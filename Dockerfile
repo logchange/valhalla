@@ -8,12 +8,16 @@ LABEL org.opencontainers.image.authors='team@logchange.dev' \
       org.opencontainers.image.vendor='The logchange Community' \
       org.opencontainers.image.licenses='Apache-2.0'
 
+# py3-yaml - Alpine uses musl, not glibc
+#   Most PyPI wheels for PyYAML do not include musl-compatible binaries
+#   Therefore pip tries to build PyYAML from source, but you have no compiler or dependencies installed
 RUN apk --update --no-cache add  \
     bash  \
     git  \
     git-lfs \
     python3 \
     py3-pip \
+    py3-yaml \
     maven  \
     openjdk8 \
     nodejs \
@@ -28,10 +32,13 @@ RUN wget https://github.com/logchange/logchange/releases/download/1.19.12/logcha
 
 ENV VALHALLA_SRC="/opt/valhalla/"
 ADD requirements.txt $VALHALLA_SRC
-RUN pip3 install --break-system-packages --user -r ${VALHALLA_SRC}requirements.txt
+RUN pip3 install --break-system-packages --root-user-action ignore -r ${VALHALLA_SRC}requirements.txt
 ADD valhalla $VALHALLA_SRC/valhalla
 ADD __main__.py $VALHALLA_SRC
 ENV PYTHONPATH="${PYTHONPATH}:${VALHALLA_SRC}"
+
+ADD requireoments_verify.py /opt/
+RUN python3 /opt/requireoments_verify.py
 
 ARG WORKING_REPO_PATH="/repository"
 RUN mkdir $WORKING_REPO_PATH

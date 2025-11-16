@@ -1,9 +1,13 @@
 from git import Repo
 
-import os
-
 from valhalla.common.logger import info, warn
 from valhalla.common.resolver import resolve
+
+
+def is_ignored(file_path: str) -> bool:
+    if file_path.startswith(".m2/"):
+        return True
+    return False
 
 
 class GitRepository:
@@ -43,8 +47,9 @@ class GitRepository:
         if add:
             untracked = self.repository.untracked_files
             for f in untracked:
-                if self.__is_ignored(f):
-                    warn(f"Skipping untracked file: {f} check your .gitignore! see: https://github.com/logchange/valhalla/blob/master/README.md#-gitignore")
+                if is_ignored(f):
+                    warn(
+                        f"Skipping untracked file: {f} check your .gitignore! see: https://github.com/logchange/valhalla/blob/master/README.md#-gitignore")
                 else:
                     self.repository.git.add(f)
                     info(f"Untracked file: {f} added to stage")
@@ -87,8 +92,3 @@ class GitRepository:
         push_url = "https://{}:{}@{}".format("valhalla-bot", token, trimmed_url)
         info(f"push_url: {push_url}")
         return push_url
-    
-    def __is_ignored(self, file_path: str) -> bool:
-        if file_path.startswith(".m2/"):
-            return True
-        return False

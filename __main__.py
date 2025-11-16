@@ -1,4 +1,4 @@
-from valhalla.main import start
+from valhalla.main import main
 
 if __name__ == '__main__':
-    start()
+    main()

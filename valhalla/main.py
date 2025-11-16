@@ -1,3 +1,5 @@
+import sys
+
 from valhalla.ci_provider.git_host import GitHost
 from valhalla.ci_provider.get_token import get_valhalla_token
 from valhalla.commit import before
@@ -5,11 +7,55 @@ from valhalla.commit.commit import GitRepository
 from valhalla.common.get_config import get_config, CommitConfig, MergeRequestConfig, Config
 from valhalla.common.logger import info, error, init_logger
 from valhalla.version.release_command import get_version_to_release_from_command
-from valhalla.common.resolver import init_str_resolver, init_str_resolver_set_version, init_str_resolver_custom_variables, resolve
+from valhalla.common.resolver import init_str_resolver, init_str_resolver_set_version, \
+    init_str_resolver_custom_variables, resolve
 from valhalla.release.assets import Assets
 from valhalla.release.description import Description
 from valhalla.version.version_to_release import get_release_kinds, VersionToRelease
 from valhalla.version.version_to_release import BASE_PREFIX
+
+
+def print_help():
+    msg = (
+        "🌌 valhalla is a toolkit designed to streamline the release of new versions of software 🌌\n"
+        "\n"
+        "Usage:\n"
+        "  valhalla            Start the release process (same as 'valhalla start').\n"
+        "  valhalla start      Start the release process.\n"
+        "  valhalla -h, --help Show this help and exit.\n"
+        "\n"
+        "Docs: https://logchange.dev/tools/valhalla/\n"
+        "\n"
+        "Notes:\n"
+        "- The 'valhalla' command starts the process by detecting the release version,\n"
+        "  reading configuration (valhalla.yml), creating a release and optionally a\n"
+        "  merge request.\n"
+        "- You can also provide the 'start' subcommand, which does exactly the same as\n"
+        "  running 'valhalla' without arguments.\n"
+    )
+    print(msg)
+
+
+def main():
+    argv = sys.argv[1:]
+
+    if not argv:
+        # Default behavior: start the process
+        start()
+        return
+
+    if argv[0] in ("-h", "--help"):
+        print_help()
+        return
+
+    if argv[0] == "start":
+        start()
+        return
+
+    # Unknown command -> print help and exit with error
+    print("Unknown command: {}".format(argv[0]))
+    print_help()
+    sys.exit(1)
 
 
 def start():
@@ -30,9 +76,10 @@ def start():
         version_to_release.from_config(config)
 
     if version_to_release.is_version_empty():
-        error(f"Version to release is empty, exiting! Create branch with name {BASE_PREFIX}X.X.X or just {BASE_PREFIX}\n"
-              f"and define in valhalla.yml version to release. You can also you VALHALLA_RELEASE_CMD to define it.\n"
-              f"Check https://logchange.dev/tools/valhalla/ for more info.\n")
+        error(
+            f"Version to release is empty, exiting! Create branch with name {BASE_PREFIX}X.X.X or just {BASE_PREFIX}\n"
+            f"and define in valhalla.yml version to release. You can also you VALHALLA_RELEASE_CMD to define it.\n"
+            f"Check https://logchange.dev/tools/valhalla/ for more info.\n")
         exit(-1)
 
     info(f'Project version that is going to be released: {version_to_release.version_number_to_release}')
@@ -114,7 +161,3 @@ def commit(commit_config: CommitConfig, token: str):
 
     else:
         info("Commit disabled(enabled: False), skipping  scripts to execute, commit, push!")
-
-
-if __name__ == '__main__':
-    start()
