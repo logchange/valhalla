@@ -15,6 +15,8 @@ with open(reqs) as f:
                 pkg = "yaml"
             if pkg.startswith("GitPython"):
                 pkg = "git"
+            if pkg.startswith("python-gitlab"):
+                pkg = "gitlab"
             importlib.import_module(pkg)
             print(f"[OK] {pkg}")
         except ImportError:

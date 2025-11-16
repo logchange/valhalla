@@ -114,7 +114,3 @@ def commit(commit_config: CommitConfig, token: str):
 
     else:
         info("Commit disabled(enabled: False), skipping  scripts to execute, commit, push!")
-
-
-if __name__ == '__main__':
-    start()
