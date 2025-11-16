@@ -13,6 +13,8 @@ with open(reqs) as f:
         try:
             if pkg.startswith("PyYAML"):
                 pkg = "yaml"
+            if pkg.startswith("GitPython"):
+                pkg = "git"
             importlib.import_module(pkg)
             print(f"[OK] {pkg}")
         except ImportError:
