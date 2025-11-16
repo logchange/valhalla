@@ -1,7 +1,6 @@
 import os
-import requests
 
-from valhalla.ci_provider.github.common import get_repository_slug, get_api_url, get_default_branch_fallback
+from valhalla.ci_provider.github.common import get_default_branch_fallback, GitHubClient
 from valhalla.common.get_config import MergeRequestConfig
 from valhalla.common.logger import info, warn
 from valhalla.common.resolver import resolve
@@ -17,15 +16,8 @@ def _get_description(description: str):
 
 class GitHubValhallaPullRequest:
     def __init__(self):
-        self.api_url = get_api_url()
-        self.repo = get_repository_slug()
-        self.token = os.getenv('VALHALLA_TOKEN')
-        self.session = requests.Session()
-        if self.token:
-            self.session.headers.update({
-                'Authorization': f'Bearer {self.token}',
-                'Accept': 'application/vnd.github+json'
-            })
+        self.client = GitHubClient()
+        self.repo = self.client.repo
 
     def create(self, merge_request_config: MergeRequestConfig):
         source_branch = os.environ.get('GITHUB_REF_NAME')
@@ -43,7 +35,7 @@ class GitHubValhallaPullRequest:
         title = resolve(merge_request_config.title)
         description = resolve(_get_description(merge_request_config.description))
 
-        url = f"{self.api_url}/repos/{self.repo}/pulls"
+        url = f"{self.client.api_url}/repos/{self.repo}/pulls"
         payload = {
             'title': title,
             'head': source_branch,
@@ -51,7 +43,7 @@ class GitHubValhallaPullRequest:
             'body': description
         }
 
-        resp = self.session.post(url, json=payload)
+        resp = self.client.post(url, json=payload)
         if resp.status_code >= 300:
             warn(f"Failed to create pull request: {resp.status_code} {resp.text}")
             return
@@ -65,9 +57,9 @@ class GitHubValhallaPullRequest:
 
     def __request_reviewers(self, pr_number: int, reviewers):
         try:
-            url = f"{self.api_url}/repos/{self.repo}/pulls/{pr_number}/requested_reviewers"
+            url = f"{self.client.api_url}/repos/{self.repo}/pulls/{pr_number}/requested_reviewers"
             payload = {"reviewers": reviewers}
-            resp = self.session.post(url, json=payload)
+            resp = self.client.post(url, json=payload)
             if resp.status_code >= 300:
                 warn(f"Could not add reviewers: {resp.status_code} {resp.text}")
             else:
