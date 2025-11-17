@@ -30,7 +30,7 @@ jobs:
         tags: ${{ env.TEST_IMAGE_TAG }}
 
     - name: Test
-      uses: brpaz/structure-tests-action@1.3.0
+      uses: brpaz/structure-tests-action@1.4.0
       with:
         image: ${{ env.TEST_IMAGE_TAG }}
         configFile: docker-test.yml
