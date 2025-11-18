@@ -254,7 +254,7 @@ def get_release_description_config_part(description_dict: dict) -> ReleaseDescri
 
 def get_release_assets_config_part(assets_dict: dict) -> ReleaseAssetsConfig:
     if assets_dict is None:
-        return ReleaseAssetsConfig([])
+        return ReleaseAssetsConfig([], [])
 
     links_dict = get_from_dict(assets_dict, 'links', False)
     links = get_release_assets_links_config_part(links_dict)
