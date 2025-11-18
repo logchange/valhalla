@@ -35,7 +35,7 @@ class Assets:
     def json(self):
         # Only serialize links to keep backward compatibility with tests/consumers
         data = {"links": [
-            {"name": l.name, "url": l.url, "link_type": l.link_type} for l in self.links
+            {"name": link.name, "url": link.url, "link_type": link.link_type} for link in self.links
         ]}
         assets_json = json.dumps(data)
         info("assets_json: " + assets_json)
@@ -44,7 +44,7 @@ class Assets:
     def to_dict(self):
         # For tests/debug; mirror json structure
         return {"links": [
-            {"name": l.name, "url": l.url, "link_type": l.link_type} for l in self.links
+            {"name": link.name, "url": link.url, "link_type": link.link_type} for link in self.links
         ]}
 
     def get_files(self) -> List[str]:

@@ -1,27 +1,10 @@
 import os
-import glob
 
 from valhalla.ci_provider.git_host import Release
 from valhalla.ci_provider.github.common import GitHubClient
 from valhalla.common.logger import info, warn
 from valhalla.release.assets import Assets
 from valhalla.release.description import Description
-
-
-def expand_file_patterns(patterns):
-    """
-    Takes a list of string patterns (e.g., ["./bins/*.zip"])
-    and returns a list of (filename, full_path) tuples.
-    """
-    results = []
-
-    for pattern in patterns:
-        for path in glob.glob(pattern):
-            full_path = os.path.abspath(path)
-            filename = os.path.basename(full_path)
-            results.append((filename, full_path))
-
-    return results
 
 
 class GitHubValhallaRelease(Release):
@@ -71,7 +54,8 @@ class GitHubValhallaRelease(Release):
         upload_base = upload_url_tmpl.split('{')[0]
         info(f"Uploading files to {upload_base}")
 
-        for name, path in expand_file_patterns(files):
+        for path in files:
+            name = os.path.basename(path)
             params = {'name': name}
             content_type = Assets.guess_mime(path)
             info(f"Uploading asset '{name}' from '{path}' with content-type '{content_type}'")
