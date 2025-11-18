@@ -1,10 +1,10 @@
 import os
 
+from valhalla.ci_provider.git_host import Release
 from valhalla.ci_provider.github.common import GitHubClient
 from valhalla.common.logger import info, warn
 from valhalla.release.assets import Assets
 from valhalla.release.description import Description
-from valhalla.ci_provider.git_host import Release
 
 
 class GitHubValhallaRelease(Release):
@@ -34,4 +34,35 @@ class GitHubValhallaRelease(Release):
         release = resp.json()
         info(f"Created release: {release.get('html_url')}")
 
-        # Assets: GitHub API would require uploads to uploads.github.com; keeping minimal for now.
+        self.__upload_files(assets, release)
+
+    def __upload_files(self, assets: Assets, release_response):
+        files = assets.get_files()
+
+        if not files:
+            info("No files to upload")
+            return
+
+        upload_url_tmpl = release_response.get('upload_url')
+        if not upload_url_tmpl:
+            info("No upload_url provided by GitHub API response; skipping asset uploads.")
+            return
+
+        # Strip the template part {...}
+        # "upload_url": "https://uploads.github.com/repos/octocat/Hello-World/releases/1/assets{?name,label}",
+        # https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#create-a-release
+        upload_base = upload_url_tmpl.split('{')[0]
+        info(f"Uploading files to {upload_base}")
+
+        for path in files:
+            name = os.path.basename(path)
+            params = {'name': name}
+            content_type = Assets.guess_mime(path)
+            info(f"Uploading asset '{name}' from '{path}' with content-type '{content_type}'")
+            with open(path, 'rb') as f:
+                resp_up = self.client.session.post(upload_base, params=params, headers={'Content-Type': content_type},
+                                                   data=f)
+            if resp_up.status_code >= 300:
+                warn(f"Failed to upload asset '{name}': {resp_up.status_code} {resp_up.text}")
+            else:
+                info(f"Uploaded asset '{name}'")
