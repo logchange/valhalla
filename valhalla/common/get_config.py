@@ -71,13 +71,15 @@ class ReleaseAssetsLinkConfig:
 
 
 class ReleaseAssetsConfig:
-    def __init__(self, links: List[ReleaseAssetsLinkConfig]):
+    def __init__(self, links: List[ReleaseAssetsLinkConfig], files: List[str]):
         self.links = links
+        self.files = files
 
     def __repr__(self):
         return f"\n" \
                f"   ReleaseAssetsConfig( \n" \
                f"           links={self.links} \n" \
+               f"           files={self.files} \n" \
                f"   )"
 
 
@@ -257,7 +259,11 @@ def get_release_assets_config_part(assets_dict: dict) -> ReleaseAssetsConfig:
     links_dict = get_from_dict(assets_dict, 'links', False)
     links = get_release_assets_links_config_part(links_dict)
 
-    return ReleaseAssetsConfig(links)
+    files_list = get_from_dict(assets_dict, 'files', False)
+    if files_list is None:
+        files_list = []
+
+    return ReleaseAssetsConfig(links, files_list)
 
 
 def get_release_assets_links_config_part(links_list_of_dicts: List[dict]) -> List[ReleaseAssetsLinkConfig]:
