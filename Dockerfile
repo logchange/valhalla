@@ -15,6 +15,8 @@ RUN apk --update --no-cache add  \
     bash  \
     git  \
     git-lfs \
+    zip \
+    unzip \
     python3 \
     py3-pip \
     py3-yaml \
