@@ -1,4 +1,43 @@
+# https://github.com/GoogleContainerTools/container-structure-test
 schemaVersion: "2.0.0"
+
+metadataTest:
+  envVars:
+    - key: 'PYTHONPATH'
+      value: '/opt/valhalla'
+  labels:
+    - key: 'org.opencontainers.image.title'
+      value: 'valhalla'
+    - key: 'org.opencontainers.image.description'
+      value: '🌌 valhalla is a toolkit designed to streamline the release of new versions of software. 🌌'
+    - key: 'org.opencontainers.image.version'
+      value: '.+' # any non-empty string (version)
+      isRegex: true
+    - key: 'org.opencontainers.image.ref.name'
+      value: '.+' # any non-empty string (version)
+      isRegex: true
+    - key: 'org.opencontainers.image.revision'
+      value: '^[a-f0-9]{40}$'
+      isRegex: true
+    - key: 'org.opencontainers.image.created'
+      value: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.-]+Z$'
+      isRegex: true
+    - key: 'org.opencontainers.image.authors'
+      value: 'team@logchange.dev'
+    - key: 'org.opencontainers.image.vendor'
+      value: 'The logchange Community'
+    - key: 'org.opencontainers.image.url'
+      value: 'https://github.com/logchange/valhalla'
+    - key: 'org.opencontainers.image.documentation'
+      value: 'https://logchange.dev/tools/valhalla/'
+    - key: 'org.opencontainers.image.source'
+      value: 'https://github.com/logchange/valhalla'
+    - key: 'org.opencontainers.image.licenses'
+      value: 'Apache-2.0'
+  entrypoint: []
+  cmd: ["valhalla"]
+  workdir: "/repository"
+  user: ""
 
 commandTests:
   - name:  "valhalla installed"

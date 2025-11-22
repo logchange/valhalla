@@ -1,12 +1,20 @@
-name: Publish Docker image
+name: Docker Image
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  contents: read
 
 jobs:
-  push_to_registry:
-    name: Push Docker image to Docker Hub
+  build_and_test:
+    name: Build, Test and Publish Docker Image
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -17,15 +25,57 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set build variables
+        id: vars
+        run: |
+          echo "build_date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
+          echo "version=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
       
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: logchange/valhalla
-      
-      - name: Build and push Docker image
+          tags: |
+            type=edge,branch=main
+            type=ref,event=tag
+          labels: |
+            org.opencontainers.image.version=${{ steps.vars.outputs.version }}
+            org.opencontainers.image.ref.name=${{ steps.vars.outputs.version }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ steps.vars.outputs.build_date }}
+
+      - name: Build Docker image
         uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          load: true # load image into docker
+          push: false # don't push image to docker before tests
+          tags: logchange/valhalla:test
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Print image labels
+        run: |
+          docker inspect logchange/valhalla:test \
+            --format '{{json .Config.Labels}}' | jq .
+
+      - name: Test Docker image
+        uses: plexsystems/container-structure-test-action@v0.3.0
+        with:
+          image: logchange/valhalla:test
+          config: docker-test.yml
+
+      - name: Push Docker Image
+        uses: docker/build-push-action@v6
+        if: github.event_name != 'pull_request'
         with:
           context: .
           file: ./Dockerfile
@@ -33,15 +83,9 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: run structure tests
-        uses: plexsystems/container-structure-test-action@v0.3.0
-        if: github.ref == 'refs/heads/main' # test only on main
-        with:
-          image: logchange/logchange:edge
-          config: docker-test.yml
-
-      - name: Docker Hub Description
+      - name: Update Docker Hub Description
         uses: peter-evans/dockerhub-description@v5
+        if: github.event_name != 'pull_request'
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
