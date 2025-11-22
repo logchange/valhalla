@@ -78,7 +78,7 @@ class GitHubMergeRequestTest(unittest.TestCase):
             mock_client_cls.return_value = mock_client
 
             pr = GitHubValhallaPullRequest()
-            config = MergeRequestConfig(enabled=True, target_branch="", title="Title", description="", reviewers=[])
+            config = MergeRequestConfig(enabled=True, target_branch="", title="Title", description="Created by Valhalla!", reviewers=[])
 
             # when
             pr.create(config)
@@ -89,7 +89,7 @@ class GitHubMergeRequestTest(unittest.TestCase):
                 'title': 'Title',
                 'head': 'feature-branch',
                 'base': 'main',
-                'body': "Created by Valhalla! Visit https://github.com/logchange/valhalla and leave a star!"
+                'body': "Created by Valhalla!"
             }
             mock_client.post.assert_any_call("https://api.github.com/repos/owner/repo/pulls", json=expected_payload)
             # Only one post call (to create PR), because reviewers list is empty

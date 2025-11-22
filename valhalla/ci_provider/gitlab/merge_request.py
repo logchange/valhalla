@@ -1,19 +1,11 @@
 import os
 from typing import List
 
+from valhalla.ci_provider.git_host import MergeRequest
 from valhalla.ci_provider.gitlab.common import get_gitlab_client, get_project_id
 from valhalla.common.get_config import MergeRequestConfig
 from valhalla.common.logger import info, warn
 from valhalla.common.resolver import resolve
-from valhalla.ci_provider.git_host import MergeRequest
-
-
-def get_description(description: str):
-    if not description:
-        info("merge_request.description not specified, using default")
-        return "Created by Valhalla! Visit https://github.com/logchange/valhalla and leave a star!"
-
-    return description
 
 
 class GitLabValhallaMergeRequest(MergeRequest):
@@ -41,7 +33,7 @@ class GitLabValhallaMergeRequest(MergeRequest):
                 'source_branch': source_branch,
                 'target_branch': target_branch,
                 'title': resolve(merge_request_config.title),
-                'description': resolve(get_description(merge_request_config.description)),
+                'description': resolve(merge_request_config.description),
                 'remove_source_branch': True,
                 'reviewer_ids': self.__get_reviewer_ids(merge_request_config.reviewers)
             }

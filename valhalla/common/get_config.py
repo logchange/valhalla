@@ -1,5 +1,5 @@
-from typing import List
 import os
+from typing import List
 
 from yaml import safe_load
 
@@ -292,18 +292,36 @@ def get_tag_config_part(tag_config_dict: dict) -> TagConfig | None:
 
 def get_merge_request_part(merge_request_dict: dict) -> MergeRequestConfig:
     if merge_request_dict is None:
-        return MergeRequestConfig(False, "", "", "", [])
+        info(
+            "merge_request.enabled not specified, using default, to disable merge request use: merge_request.enabled: False")
+        return MergeRequestConfig(True, "", get_default_merge_request_title(""),
+                                  get_default_merge_request_description(""), [])
 
     enabled = get_from_dict(merge_request_dict, 'enabled', True)
-    merge_request_other_options_required = enabled
-
     target_branch = get_from_dict(merge_request_dict, 'target_branch', False)
-
-    title = get_from_dict(merge_request_dict, 'title', merge_request_other_options_required)
+    title = get_from_dict(merge_request_dict, 'title', False)
     description = get_from_dict(merge_request_dict, 'description', False)
 
     reviewers = get_from_dict(merge_request_dict, 'reviewers', False)
-    return MergeRequestConfig(enabled, target_branch, title, description, reviewers)
+    return MergeRequestConfig(enabled,
+                              target_branch,
+                              get_default_merge_request_title(title),
+                              get_default_merge_request_description(description),
+                              reviewers)
+
+
+def get_default_merge_request_title(title: str):
+    if not title:
+        info("merge_request.title not specified, using default")
+        return "Releasing version {VERSION} with valhalla!"
+    return title
+
+
+def get_default_merge_request_description(description: str):
+    if not description:
+        info("merge_request.description not specified, using default")
+        return "Created by Valhalla! Visit https://github.com/logchange/valhalla and leave a star!"
+    return description
 
 
 def get_from_dict(d: dict, key: str, required: bool):

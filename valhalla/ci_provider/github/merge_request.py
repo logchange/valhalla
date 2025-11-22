@@ -6,14 +6,6 @@ from valhalla.common.logger import info, warn
 from valhalla.common.resolver import resolve
 
 
-def _get_description(description: str):
-    if not description:
-        info("merge_request.description not specified, using default")
-        return "Created by Valhalla! Visit https://github.com/logchange/valhalla and leave a star!"
-
-    return description
-
-
 class GitHubValhallaPullRequest:
     def __init__(self):
         self.client = GitHubClient()
@@ -33,7 +25,7 @@ class GitHubValhallaPullRequest:
         info(f"Creating pull request from {source_branch} to {target_branch}")
 
         title = resolve(merge_request_config.title)
-        description = resolve(_get_description(merge_request_config.description))
+        description = resolve(merge_request_config.description)
 
         url = f"{self.client.api_url}/repos/{self.repo}/pulls"
         payload = {
