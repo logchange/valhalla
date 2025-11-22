@@ -38,7 +38,7 @@ ADD requirements.txt ${VALHALLA_SRC}/
 RUN pip3 install --break-system-packages --root-user-action ignore -r ${VALHALLA_SRC}/requirements.txt
 ADD valhalla ${VALHALLA_SRC}/valhalla
 ADD __main__.py ${VALHALLA_SRC}/
-ENV PYTHONPATH="${VALHALLA_SRC}${PYTHONPATH:+:$PYTHONPATH}"
+ENV PYTHONPATH="${VALHALLA_SRC}"
 
 ADD requireoments_verify.py /opt/
 RUN python3 /opt/requireoments_verify.py
