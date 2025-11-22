@@ -4,7 +4,7 @@ schemaVersion: "2.0.0"
 metadataTest:
   envVars:
     - key: 'PYTHONPATH'
-      value: ':/opt/valhalla/'
+      value: '/opt/valhalla'
   labels:
     - key: 'org.opencontainers.image.title'
       value: 'valhalla'
