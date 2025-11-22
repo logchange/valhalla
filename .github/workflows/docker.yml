@@ -1,4 +1,4 @@
-name: Publish Docker image
+name: Docker Image
 
 on:
   push:
@@ -48,6 +48,7 @@ jobs:
             type=ref,event=tag
           labels: |
             org.opencontainers.image.version=${{ steps.vars.outputs.version }}
+            org.opencontainers.image.ref.name=${{ steps.vars.outputs.version }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.created=${{ steps.vars.outputs.build_date }}
 
@@ -60,11 +61,6 @@ jobs:
           push: false # don't push image to docker before tests
           tags: logchange/valhalla:test
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
-            REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
-            BUILDTIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
-
 
       - name: Print image labels
         run: |
@@ -86,10 +82,6 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
-            REVISION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
-            BUILDTIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
 
       - name: Update Docker Hub Description
         uses: peter-evans/dockerhub-description@v5
