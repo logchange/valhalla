@@ -9,7 +9,7 @@ metadataTest:
     - key: 'org.opencontainers.image.title'
       value: 'valhalla'
     - key: 'org.opencontainers.image.description'
-      value: 'A toolkit designed to streamline the release of new versions of software'
+      value: '🌌 valhalla is a toolkit designed to streamline the release of new versions of software. 🌌'
     - key: 'org.opencontainers.image.version'
       value: '.+' # any non-empty string (version)
       isRegex: true
