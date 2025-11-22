@@ -3,6 +3,10 @@ FROM alpine:3
 # Labels.
 LABEL org.opencontainers.image.title="valhalla" \
       org.opencontainers.image.description="A toolkit designed to streamline the release of new versions of software" \
+      org.opencontainers.image.version="$VERSION" \
+      org.opencontainers.image.ref.name="$VERSION" \
+      org.opencontainers.image.revision="$REVSION" \
+      org.opencontainers.image.created="$BUILDTIME" \
       org.opencontainers.image.authors='team@logchange.dev' \
       org.opencontainers.image.vendor='The logchange Community' \
       org.opencontainers.image.url='https://github.com/logchange/valhalla' \

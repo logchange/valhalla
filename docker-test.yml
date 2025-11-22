@@ -13,6 +13,9 @@ metadataTest:
     - key: 'org.opencontainers.image.version'
       value: '.+' # any non-empty string (version)
       isRegex: true
+    - key: 'org.opencontainers.image.ref.name'
+      value: '.+' # any non-empty string (version)
+      isRegex: true
     - key: 'org.opencontainers.image.revision'
       value: '^[a-f0-9]{40}$'
       isRegex: true
