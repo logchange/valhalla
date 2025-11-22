@@ -34,11 +34,11 @@ RUN wget https://github.com/logchange/logchange/releases/download/1.19.12/logcha
     && chmod +x /usr/local/bin/logchange \
     && rm -rf logchange-linuxx64.zip bins
 
-ENV VALHALLA_SRC="/opt/valhalla/"
+ENV VALHALLA_SRC="/opt/valhalla"
 ADD requirements.txt ${VALHALLA_SRC}
-RUN pip3 install --break-system-packages --root-user-action ignore -r ${VALHALLA_SRC}requirements.txt
-ADD valhalla ${VALHALLA_SRC}valhalla
-ADD __main__.py ${VALHALLA_SRC}
+RUN pip3 install --break-system-packages --root-user-action ignore -r ${VALHALLA_SRC}/requirements.txt
+ADD valhalla ${VALHALLA_SRC}/valhalla
+ADD __main__.py ${VALHALLA_SRC}/
 ENV PYTHONPATH="${PYTHONPATH:-}:${VALHALLA_SRC}"
 
 ADD requireoments_verify.py /opt/

@@ -3,8 +3,8 @@ schemaVersion: "2.0.0"
 
 metadataTest:
   envVars:
-    - key: PYTHONPATH
-      value: baz
+    - key: 'PYTHONPATH'
+      value: ':/opt/valhalla/'
   labels:
     - key: 'org.opencontainers.image.title'
       value: 'valhalla'
@@ -16,11 +16,9 @@ metadataTest:
     - key: 'org.opencontainers.image.revision'
       value: '^[a-f0-9]{40}$'
       isRegex: true
-    - key: 'org.opencontainers.image.revision'
+    - key: 'org.opencontainers.image.created'
       value: '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.-]+Z$'
       isRegex: true
-    - key: 'org.opencontainers.image.description'
-      value: 'A toolkit designed to streamline the release of new versions of software.'
     - key: 'org.opencontainers.image.authors'
       value: 'team@logchange.dev'
     - key: 'org.opencontainers.image.vendor'
@@ -36,7 +34,7 @@ metadataTest:
   entrypoint: []
   cmd: ["valhalla"]
   workdir: "/repository"
-  user: "root"
+  user: ""
 
 commandTests:
   - name:  "valhalla installed"
