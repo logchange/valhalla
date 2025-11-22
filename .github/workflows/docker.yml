@@ -9,6 +9,9 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+
 jobs:
   build_and_test:
     name: Build, Test and Publish Docker Image
