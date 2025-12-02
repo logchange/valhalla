@@ -75,7 +75,7 @@ jobs:
 
       - name: Push Docker Image
         uses: docker/build-push-action@v6
-        if: github.event_name != 'pull_request'
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           context: .
           file: ./Dockerfile
