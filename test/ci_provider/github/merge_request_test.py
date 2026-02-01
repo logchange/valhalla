@@ -123,3 +123,96 @@ class GitHubMergeRequestTest(unittest.TestCase):
 
             # then
             mock_warn.assert_any_call("Failed to create pull request: 422 validation failed")
+
+    @patch("valhalla.ci_provider.github.merge_request.GitHubClient")
+    @patch("valhalla.ci_provider.github.merge_request.resolve")
+    @patch("valhalla.ci_provider.github.merge_request.info")
+    @patch("valhalla.ci_provider.github.merge_request.warn")
+    def test_add_comment_to_pull_request(self, mock_warn, mock_info, mock_resolve, mock_client_cls):
+        # given
+        with patch.dict('os.environ', {'GITHUB_REF_NAME': 'feature-branch'}):
+            mock_resolve.side_effect = lambda x: x
+            mock_client = MagicMock()
+            mock_client.api_url = "https://api.github.com"
+            mock_client.repo = "owner/repo"
+
+            pr_response = MagicMock()
+            pr_response.status_code = 201
+            pr_response.json.return_value = {"html_url": "url", "number": 123}
+
+            mock_client.post.return_value = pr_response
+            mock_client_cls.return_value = mock_client
+
+            pr = GitHubValhallaPullRequest()
+            config = MergeRequestConfig(enabled=True, target_branch="main", title="T", description="D", reviewers=[])
+
+            # when
+            hook = pr.create(config)
+            hook.add_comment("My comment")
+
+            # then
+            expected_comment_url = "https://api.github.com/repos/owner/repo/issues/123/comments"
+            mock_client.post.assert_any_call(expected_comment_url, json={"body": "My comment"})
+            mock_info.assert_any_call(f"Adding comment to pull request: {expected_comment_url}")
+
+    @patch("valhalla.ci_provider.github.merge_request.GitHubClient")
+    @patch("valhalla.ci_provider.github.merge_request.resolve")
+    @patch("valhalla.ci_provider.github.merge_request.info")
+    @patch("valhalla.ci_provider.github.merge_request.warn")
+    def test_add_comment_exception(self, mock_warn, mock_info, mock_resolve, mock_client_cls):
+        # given
+        with patch.dict('os.environ', {'GITHUB_REF_NAME': 'feature-branch'}):
+            mock_resolve.side_effect = lambda x: x
+            mock_client = MagicMock()
+            mock_client.api_url = "https://api.github.com"
+            mock_client.repo = "owner/repo"
+
+            pr_response = MagicMock()
+            pr_response.status_code = 201
+            pr_response.json.return_value = {"html_url": "url", "number": 123}
+
+            # First call (create PR) succeeds, second call (add comment) raises exception
+            mock_client.post.side_effect = [pr_response, Exception("Network error")]
+            mock_client_cls.return_value = mock_client
+
+            pr = GitHubValhallaPullRequest()
+            config = MergeRequestConfig(enabled=True, target_branch="main", title="T", description="D", reviewers=[])
+
+            # when
+            hook = pr.create(config)
+            hook.add_comment("My comment")
+
+            # then
+            mock_warn.assert_any_call("Could not add comment to pull request because: Network error")
+
+    @patch("valhalla.ci_provider.github.merge_request.GitHubClient")
+    @patch("valhalla.ci_provider.github.merge_request.resolve")
+    @patch("valhalla.ci_provider.github.merge_request.info")
+    @patch("valhalla.ci_provider.github.merge_request.warn")
+    def test_request_reviewers_failure(self, mock_warn, mock_info, mock_resolve, mock_client_cls):
+        # given
+        with patch.dict('os.environ', {'GITHUB_REF_NAME': 'feature-branch'}):
+            mock_resolve.side_effect = lambda x: x
+            mock_client = MagicMock()
+            mock_client.api_url = "https://api.github.com"
+            mock_client.repo = "owner/repo"
+
+            pr_response = MagicMock()
+            pr_response.status_code = 201
+            pr_response.json.return_value = {"html_url": "url", "number": 123}
+
+            rev_response = MagicMock()
+            rev_response.status_code = 404
+            rev_response.text = "Not found"
+
+            mock_client.post.side_effect = [pr_response, rev_response]
+            mock_client_cls.return_value = mock_client
+
+            pr = GitHubValhallaPullRequest()
+            config = MergeRequestConfig(enabled=True, target_branch="main", title="T", description="D", reviewers=["user1"])
+
+            # when
+            pr.create(config)
+
+            # then
+            mock_warn.assert_any_call("Could not add reviewers: 404 Not found")

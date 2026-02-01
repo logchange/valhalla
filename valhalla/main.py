@@ -2,6 +2,7 @@ import sys
 
 from valhalla.ci_provider.git_host import GitHost
 from valhalla.ci_provider.get_token import get_valhalla_token
+from valhalla.ci_provider.merge_request_hook import MergeRequestHook
 from valhalla.commit import before
 from valhalla.commit.commit import GitRepository
 from valhalla.common.get_config import get_config, CommitConfig, MergeRequestConfig, Config
@@ -85,13 +86,17 @@ def start():
     info(f'Project version that is going to be released: {version_to_release.version_number_to_release}')
     init_str_resolver_set_version(version_to_release.version_number_to_release)
 
+    mr_hook = create_merge_request(git_host, config.merge_request)
+
+    mr_hook.add_comment(f"⏳ Release proces of version {version_to_release.version_number_to_release} has begun! Please wait.")
+
     commit(config.commit_before_release, token)
 
     create_release(git_host, config, version_to_release.version_number_to_release)
 
     commit(config.commit_after_release, token)
 
-    create_merge_request(git_host, config.merge_request)
+    mr_hook.add_comment("✅ Release successful! Now wait for tagged version to be build.")
 
 
 def __version_to_release(git_host: GitHost) -> VersionToRelease:
@@ -105,15 +110,16 @@ def __version_to_release(git_host: GitHost) -> VersionToRelease:
     return version_to_release
 
 
-def create_merge_request(git_host: GitHost, merge_request_config: MergeRequestConfig):
+def create_merge_request(git_host: GitHost, merge_request_config: MergeRequestConfig | None) -> MergeRequestHook:
     if merge_request_config is None:
         info("merge_request not specified in valhalla.yml, skipping")
-        return
+        return MergeRequestHook.Skip()
     if merge_request_config.enabled:
         info("Preparing to create merge request")
-        git_host.create_merge_request(merge_request_config)
+        return git_host.create_merge_request(merge_request_config)
     else:
         info("merge_request.enabled is False in valhalla.yml, skipping")
+        return MergeRequestHook.Skip()
 
 
 def create_release(git_host: GitHost, config: Config, version_to_release: str):

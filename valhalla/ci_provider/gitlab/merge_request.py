@@ -6,6 +6,7 @@ from valhalla.ci_provider.gitlab.common import get_gitlab_client, get_project_id
 from valhalla.common.get_config import MergeRequestConfig
 from valhalla.common.logger import info, warn
 from valhalla.common.resolver import resolve
+from valhalla.ci_provider.merge_request_hook import MergeRequestHook
 
 
 class GitLabValhallaMergeRequest(MergeRequest):
@@ -40,6 +41,17 @@ class GitLabValhallaMergeRequest(MergeRequest):
         )
 
         info(f"Created merge request: " + mr.web_url)
+
+        mr_iid = getattr(mr, 'iid', None)
+
+        def _add_comment(comment: str):
+            try:
+                mr_obj = self.project.mergerequests.get(mr_iid, iid=True)
+                mr_obj.notes.create({'body': comment})
+            except Exception as e:
+                warn(f"Could not add comment to merge request because: {e}")
+
+        return MergeRequestHook(mr_iid, _add_comment)
 
     def __get_reviewer_ids(self, reviewers: List[str]) -> List[int]:
         result = []
