@@ -58,7 +58,6 @@ class GitHubValhallaPullRequest:
                 self.client.post(comment_url, json={"body": comment})
             except Exception as e:
                 warn(f"Could not add comment to pull request because: {e}")
-                pass
 
         return MergeRequestHook(pr_number, _add_comment)
 

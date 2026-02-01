@@ -50,7 +50,6 @@ class GitLabValhallaMergeRequest(MergeRequest):
                 mr_obj.notes.create({'body': comment})
             except Exception as e:
                 warn(f"Could not add comment to merge request because: {e}")
-                pass
 
         return MergeRequestHook(mr_iid, _add_comment)
 
