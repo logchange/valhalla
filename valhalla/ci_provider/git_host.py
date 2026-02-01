@@ -58,7 +58,7 @@ class GitHost:
             from valhalla.ci_provider.gitlab.merge_request import GitLabValhallaMergeRequest as MergeRequestType
 
         merge_request = MergeRequestType()
-        merge_request.create(merge_request_config)
+        return merge_request.create(merge_request_config)
 
     def get_version_to_release(self, release_kinds: list[ReleaseKind]) -> VersionToRelease:
         if self.is_github():
