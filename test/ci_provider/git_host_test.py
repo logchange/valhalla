@@ -6,7 +6,7 @@ from valhalla.ci_provider.git_host import GitHost, Release, MergeRequest, Versio
 
 class GitHostTest(unittest.TestCase):
 
-    @patch.dict(os.environ, {"GITHUB_ACTIONS": "true"})
+    @patch.dict(os.environ, {"GITHUB_ACTIONS": "true"}, clear=True)
     def test_should_detect_github_via_github_actions(self):
         # given: os.environ has GITHUB_ACTIONS
         
@@ -17,7 +17,7 @@ class GitHostTest(unittest.TestCase):
         self.assertTrue(git_host.is_github())
         self.assertFalse(git_host.is_gitlab())
 
-    @patch.dict(os.environ, {"GITHUB_REPOSITORY": "user/repo"})
+    @patch.dict(os.environ, {"GITHUB_REPOSITORY": "user/repo"}, clear=True)
     def test_should_detect_github_via_github_repository(self):
         # given: os.environ has GITHUB_REPOSITORY
         
@@ -27,7 +27,7 @@ class GitHostTest(unittest.TestCase):
         # then:
         self.assertTrue(git_host.is_github())
 
-    @patch.dict(os.environ, {"GITLAB_CI": "true"})
+    @patch.dict(os.environ, {"GITLAB_CI": "true"}, clear=True)
     def test_should_detect_gitlab_via_gitlab_ci(self):
         # given: os.environ has GITLAB_CI
         
@@ -38,7 +38,7 @@ class GitHostTest(unittest.TestCase):
         self.assertTrue(git_host.is_gitlab())
         self.assertFalse(git_host.is_github())
 
-    @patch.dict(os.environ, {"CI_SERVER_HOST": "gitlab.com"})
+    @patch.dict(os.environ, {"CI_SERVER_HOST": "gitlab.com"}, clear=True)
     def test_should_detect_gitlab_via_ci_server_host(self):
         # given: os.environ has CI_SERVER_HOST
         
@@ -58,7 +58,7 @@ class GitHostTest(unittest.TestCase):
         
         self.assertIn("Could not detect git host", str(context.exception))
 
-    @patch.dict(os.environ, {"GITHUB_ACTIONS": "true"})
+    @patch.dict(os.environ, {"GITHUB_ACTIONS": "true"}, clear=True)
     @patch('valhalla.ci_provider.github.release.GitHubValhallaRelease')
     def test_get_release_impl_github(self, mock_release):
         # given:
@@ -71,7 +71,7 @@ class GitHostTest(unittest.TestCase):
         from valhalla.ci_provider.github.release import GitHubValhallaRelease
         self.assertEqual(release_type, GitHubValhallaRelease)
 
-    @patch.dict(os.environ, {"GITLAB_CI": "true"})
+    @patch.dict(os.environ, {"GITLAB_CI": "true"}, clear=True)
     @patch('valhalla.ci_provider.gitlab.release.GitLabValhallaRelease')
     def test_get_release_impl_gitlab(self, mock_release):
         # given:
@@ -84,7 +84,7 @@ class GitHostTest(unittest.TestCase):
         from valhalla.ci_provider.gitlab.release import GitLabValhallaRelease
         self.assertEqual(release_type, GitLabValhallaRelease)
 
-    @patch.dict(os.environ, {"GITHUB_ACTIONS": "true"})
+    @patch.dict(os.environ, {"GITHUB_ACTIONS": "true"}, clear=True)
     @patch('valhalla.ci_provider.github.merge_request.GitHubValhallaPullRequest')
     def test_create_merge_request_github(self, mock_pr_class):
         # given:
@@ -99,7 +99,7 @@ class GitHostTest(unittest.TestCase):
         mock_pr_class.assert_called_once()
         mock_pr_instance.create.assert_called_once_with(mock_config)
 
-    @patch.dict(os.environ, {"GITLAB_CI": "true"})
+    @patch.dict(os.environ, {"GITLAB_CI": "true"}, clear=True)
     @patch('valhalla.ci_provider.gitlab.merge_request.GitLabValhallaMergeRequest')
     def test_create_merge_request_gitlab(self, mock_mr_class):
         # given:
@@ -114,7 +114,7 @@ class GitHostTest(unittest.TestCase):
         mock_mr_class.assert_called_once()
         mock_mr_instance.create.assert_called_once_with(mock_config)
 
-    @patch.dict(os.environ, {"GITHUB_ACTIONS": "true"})
+    @patch.dict(os.environ, {"GITHUB_ACTIONS": "true"}, clear=True)
     @patch('valhalla.ci_provider.github.get_version.GitHubVersionToReleaseProvider')
     def test_get_version_to_release_github(self, mock_provider_class):
         # given:
@@ -129,7 +129,7 @@ class GitHostTest(unittest.TestCase):
         mock_provider_class.assert_called_once()
         mock_provider_instance.get_from_branch_name.assert_called_once_with(release_kinds)
 
-    @patch.dict(os.environ, {"GITLAB_CI": "true"})
+    @patch.dict(os.environ, {"GITLAB_CI": "true"}, clear=True)
     @patch('valhalla.ci_provider.gitlab.get_version.GitLabVersionToReleaseProvider')
     def test_get_version_to_release_gitlab(self, mock_provider_class):
         # given:
@@ -144,7 +144,7 @@ class GitHostTest(unittest.TestCase):
         mock_provider_class.assert_called_once()
         mock_provider_instance.get_from_branch_name.assert_called_once_with(release_kinds)
 
-    @patch.dict(os.environ, {"GITHUB_ACTIONS": "true"})
+    @patch.dict(os.environ, {"GITHUB_ACTIONS": "true"}, clear=True)
     @patch('valhalla.ci_provider.github.common.get_author')
     def test_get_author_github(self, mock_get_author):
         # given:
@@ -158,7 +158,7 @@ class GitHostTest(unittest.TestCase):
         self.assertEqual(author, "github-author")
         mock_get_author.assert_called_once()
 
-    @patch.dict(os.environ, {"GITLAB_CI": "true"})
+    @patch.dict(os.environ, {"GITLAB_CI": "true"}, clear=True)
     @patch('valhalla.ci_provider.gitlab.common.get_author')
     def test_get_author_gitlab(self, mock_get_author):
         # given:
