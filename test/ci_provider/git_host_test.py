@@ -172,6 +172,94 @@ class GitHostTest(unittest.TestCase):
         self.assertEqual(author, "gitlab-author")
         mock_get_author.assert_called_once()
 
+    @patch.dict(os.environ, {"GITHUB_ACTIONS": "true"}, clear=True)
+    @patch('valhalla.ci_provider.github.common.GitHubClient')
+    def test_get_branches_github(self, mock_client_class):
+        # given:
+        git_host = GitHost()
+        mock_client_instance = mock_client_class.return_value
+        mock_client_instance.api_url = "https://api.github.com"
+        mock_client_instance.repo = "user/repo"
+        
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = [{"name": "main"}, {"name": "develop"}]
+        mock_client_instance.get.return_value = mock_response
+        
+        # when:
+        branches = git_host.get_branches()
+        
+        # then:
+        self.assertEqual(branches, ["main", "develop"])
+        mock_client_instance.get.assert_called_once_with("https://api.github.com/repos/user/repo/branches")
+
+    @patch.dict(os.environ, {"GITHUB_ACTIONS": "true"}, clear=True)
+    @patch('valhalla.ci_provider.github.common.GitHubClient')
+    def test_get_branches_github_error(self, mock_client_class):
+        # given:
+        git_host = GitHost()
+        mock_client_instance = mock_client_class.return_value
+        mock_client_instance.api_url = "https://api.github.com"
+        mock_client_instance.repo = "user/repo"
+        
+        mock_response = MagicMock()
+        mock_response.status_code = 404
+        mock_response.text = "Not Found"
+        mock_client_instance.get.return_value = mock_response
+        
+        # when / then:
+        with self.assertRaises(Exception) as context:
+            git_host.get_branches()
+        
+        self.assertIn("Failed to get branches from GitHub: 404 Not Found", str(context.exception))
+
+    @patch.dict(os.environ, {"GITLAB_CI": "true"}, clear=True)
+    @patch('valhalla.ci_provider.gitlab.common.get_gitlab_client')
+    @patch('valhalla.ci_provider.gitlab.common.get_project_id')
+    def test_get_branches_gitlab(self, mock_get_project_id, mock_get_gitlab_client):
+        # given:
+        git_host = GitHost()
+        mock_get_project_id.return_value = 123
+        mock_gl = mock_get_gitlab_client.return_value
+        mock_project = MagicMock()
+        mock_gl.projects.get.return_value = mock_project
+        
+        mock_branch_1 = MagicMock()
+        mock_branch_1.name = "main"
+        mock_branch_2 = MagicMock()
+        mock_branch_2.name = "develop"
+        mock_project.branches.list.return_value = [mock_branch_1, mock_branch_2]
+        
+        # when:
+        branches = git_host.get_branches()
+        
+        # then:
+        self.assertEqual(branches, ["main", "develop"])
+        mock_gl.projects.get.assert_called_once_with(123)
+        mock_project.branches.list.assert_called_once_with(all=True)
+
+    @patch.dict(os.environ, {"GITHUB_ACTIONS": "true", "GITHUB_REF_NAME": "feat/test"}, clear=True)
+    def test_get_current_branch_github(self):
+        # given:
+        git_host = GitHost()
+        
+        # when:
+        branch = git_host.get_current_branch()
+        
+        # then:
+        self.assertEqual(branch, "feat/test")
+
+    @patch.dict(os.environ, {"GITLAB_CI": "true", "CI_COMMIT_BRANCH": "feat/gitlab"}, clear=True)
+    def test_get_current_branch_gitlab(self):
+        # given:
+        git_host = GitHost()
+        
+        # when:
+        branch = git_host.get_current_branch()
+        
+        # then:
+        self.assertEqual(branch, "feat/gitlab")
+
 
 class AbstractClassesTest(unittest.TestCase):
     
