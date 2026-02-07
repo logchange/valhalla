@@ -84,7 +84,6 @@ def start():
             f"Check https://logchange.dev/tools/valhalla/ for more info.\n")
         exit(-1)
 
-
     info(f'Project version that is going to be released: {version_to_release.version_number_to_release}')
     init_str_resolver_set_version(version_to_release.version_number_to_release)
 
@@ -97,7 +96,8 @@ def start():
             f"Other releases in progress: {other_release}. You should merge changes from previous releases and delete branches.")
         exit(-1)
 
-    mr_hook.add_comment(f"⏳ Release proces of version {version_to_release.version_number_to_release} has begun! Please wait.")
+    mr_hook.add_comment(
+        f"⏳ Release proces of version {version_to_release.version_number_to_release} has begun! Please wait.")
 
     commit(config.commit_before_release, token)
 
