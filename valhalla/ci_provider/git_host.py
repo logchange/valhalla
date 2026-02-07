@@ -83,10 +83,22 @@ class GitHost:
             from valhalla.ci_provider.github.common import GitHubClient
             client = GitHubClient()
             url = f"{client.api_url}/repos/{client.repo}/branches"
-            resp = client.get(url)
-            if resp.status_code >= 300:
-                raise Exception(f"Failed to get branches from GitHub: {resp.status_code} {resp.text}")
-            return [b['name'] for b in resp.json()]
+
+            branches = []
+
+            while url:
+                resp = client.get(url)
+                if resp.status_code >= 300:
+                    raise Exception(f"Failed to get branches from GitHub: {resp.status_code} {resp.text}")
+
+                branches.extend([b['name'] for b in resp.json()])
+
+                if 'next' in resp.links:
+                    url = resp.links['next']['url']
+                else:
+                    url = None
+
+            return branches
         else:
             from valhalla.ci_provider.gitlab.common import get_gitlab_client, get_project_id
             gl = get_gitlab_client()

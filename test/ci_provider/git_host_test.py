@@ -195,6 +195,36 @@ class GitHostTest(unittest.TestCase):
 
     @patch.dict(os.environ, {"GITHUB_ACTIONS": "true"}, clear=True)
     @patch('valhalla.ci_provider.github.common.GitHubClient')
+    def test_get_branches_github_pagination(self, mock_client_class):
+        # given:
+        git_host = GitHost()
+        mock_client_instance = mock_client_class.return_value
+        mock_client_instance.api_url = "https://api.github.com"
+        mock_client_instance.repo = "user/repo"
+
+        # Mock first page response with Link header to next page
+        mock_response_1 = MagicMock()
+        mock_response_1.status_code = 200
+        mock_response_1.json.return_value = [{"name": "branch1"}]
+        mock_response_1.links = {'next': {'url': 'https://api.github.com/repos/user/repo/branches?page=2'}}
+
+        # Mock second page response
+        mock_response_2 = MagicMock()
+        mock_response_2.status_code = 200
+        mock_response_2.json.return_value = [{"name": "branch2"}]
+        mock_response_2.links = {}
+
+        mock_client_instance.get.side_effect = [mock_response_1, mock_response_2]
+
+        # when:
+        branches = git_host.get_branches()
+
+        # then:
+        self.assertEqual(branches, ["branch1", "branch2"])
+        self.assertEqual(mock_client_instance.get.call_count, 2)
+
+    @patch.dict(os.environ, {"GITHUB_ACTIONS": "true"}, clear=True)
+    @patch('valhalla.ci_provider.github.common.GitHubClient')
     def test_get_branches_github_error(self, mock_client_class):
         # given:
         git_host = GitHost()
