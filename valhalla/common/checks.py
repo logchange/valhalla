@@ -1,4 +1,4 @@
-from typing import List, Any
+from typing import Any
 
 from valhalla.ci_provider.git_host import GitHost
 from valhalla.version.version_to_release import BASE_PREFIX

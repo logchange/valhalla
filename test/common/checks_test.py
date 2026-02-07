@@ -16,7 +16,7 @@ class ChecksTest(unittest.TestCase):
         result = get_other_release_in_progress(git_host)
 
         # then:
-        self.assertIsNone(result)
+        self.assertEqual(result, [])
 
     def test_get_other_release_in_progress_one_other(self):
         # given:
