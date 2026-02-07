@@ -1,19 +1,20 @@
 import sys
 
-from valhalla.ci_provider.git_host import GitHost
 from valhalla.ci_provider.get_token import get_valhalla_token
+from valhalla.ci_provider.git_host import GitHost
 from valhalla.ci_provider.merge_request_hook import MergeRequestHook
 from valhalla.commit import before
 from valhalla.commit.commit import GitRepository
+from valhalla.common.checks import get_other_release_in_progress
 from valhalla.common.get_config import get_config, CommitConfig, MergeRequestConfig, Config
 from valhalla.common.logger import info, error, init_logger
-from valhalla.version.release_command import get_version_to_release_from_command
 from valhalla.common.resolver import init_str_resolver, init_str_resolver_set_version, \
     init_str_resolver_custom_variables, resolve
 from valhalla.release.assets import Assets
 from valhalla.release.description import Description
-from valhalla.version.version_to_release import get_release_kinds, VersionToRelease
+from valhalla.version.release_command import get_version_to_release_from_command
 from valhalla.version.version_to_release import BASE_PREFIX
+from valhalla.version.version_to_release import get_release_kinds, VersionToRelease
 
 
 def print_help():
@@ -88,7 +89,15 @@ def start():
 
     mr_hook = create_merge_request(git_host, config.merge_request)
 
-    mr_hook.add_comment(f"⏳ Release proces of version {version_to_release.version_number_to_release} has begun! Please wait.")
+    other_release = get_other_release_in_progress(git_host)
+    if other_release:
+        error(
+            f"Cannot have more than one release in progress at the same time because it leads to inconsistencies and conflicts!\n"
+            f"Other releases in progress: {other_release}. You should merge changes from previous releases and delete branches.")
+        exit(-1)
+
+    mr_hook.add_comment(
+        f"⏳ Release proces of version {version_to_release.version_number_to_release} has begun! Please wait.")
 
     commit(config.commit_before_release, token)
 
