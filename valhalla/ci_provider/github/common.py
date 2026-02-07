@@ -44,3 +44,6 @@ class GitHubClient:
 
     def post(self, url: str, json=None):
         return self.session.post(url, json=json)
+
+    def get(self, url: str, params=None):
+        return self.session.get(url, params=params)

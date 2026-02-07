@@ -77,3 +77,26 @@ class GitHost:
         else:
             from valhalla.ci_provider.gitlab.common import get_author as gl_get_author
             return gl_get_author()
+
+    def get_branches(self) -> List[str]:
+        if self.is_github():
+            from valhalla.ci_provider.github.common import GitHubClient
+            client = GitHubClient()
+            url = f"{client.api_url}/repos/{client.repo}/branches"
+            resp = client.get(url)
+            if resp.status_code >= 300:
+                raise Exception(f"Failed to get branches from GitHub: {resp.status_code} {resp.text}")
+            return [b['name'] for b in resp.json()]
+        else:
+            from valhalla.ci_provider.gitlab.common import get_gitlab_client, get_project_id
+            gl = get_gitlab_client()
+            project_id = get_project_id()
+            project = gl.projects.get(project_id)
+            branches = project.branches.list(all=True)
+            return [b.name for b in branches]
+
+    def get_current_branch(self) -> str:
+        if self.is_github():
+            return os.environ.get('GITHUB_REF_NAME')
+        else:
+            return os.environ.get('CI_COMMIT_BRANCH')

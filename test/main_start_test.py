@@ -34,6 +34,7 @@ class MainStartTest(unittest.TestCase):
                 patch('os.environ.get', side_effect=fake_environ_get),\
                 patch('valhalla.ci_provider.git_host.GitHost.get_author', return_value='AUTHOR') as mock_get_author, \
                 patch('valhalla.main.commit') as mock_commit, \
+                patch('valhalla.main.get_other_release_in_progress', return_value=[]), \
                 patch('valhalla.main.create_release') as mock_create_release, \
                 patch('valhalla.main.create_merge_request') as mock_create_mr:
             from valhalla.main import start
