@@ -1,11 +1,12 @@
 import unittest
-from unittest.mock import patch, MagicMock
-import os
+from unittest.mock import patch
+
 from valhalla.ci_provider.gitlab.common import (
     get_gitlab_client,
     get_project_id,
     get_author,
 )
+
 
 class GitLabCommonTest(unittest.TestCase):
 
