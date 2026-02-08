@@ -1,7 +1,6 @@
 from __future__ import annotations
-from typing import Callable, Optional
 
-from valhalla.common.logger import info
+from typing import Callable, Optional
 
 
 class MergeRequestHook:
@@ -20,7 +19,6 @@ class MergeRequestHook:
 
     def add_comment(self, comment: str):
         if self._add_comment_impl is None:
-            info(f"Skipping adding comment: {comment}, merge request has not been created")
             return
         self._add_comment_impl(comment)
 

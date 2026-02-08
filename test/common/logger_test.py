@@ -1,6 +1,8 @@
 import unittest
-from unittest.mock import patch, call
-from valhalla.common.logger import info, warn, error, init_logger
+from unittest.mock import patch, call, MagicMock
+
+from valhalla.common.logger import info, warn, error, init_logger, init_logger_mr_hook
+
 
 class LoggerTest(unittest.TestCase):
 
@@ -62,3 +64,45 @@ class LoggerTest(unittest.TestCase):
         # then:
         calls = [call("[INFO] line1"), call("[INFO] line2")]
         mock_print.assert_has_calls(calls)
+
+    @patch('builtins.print')
+    def test_warn_adds_comment_to_mr_when_hook_is_set(self, mock_print):
+        # given:
+        mr_hook = MagicMock()
+        init_logger_mr_hook(mr_hook)
+        msg = "warn message"
+
+        # when:
+        warn(msg)
+
+        # then:
+        mr_hook.add_comment.assert_called_once_with("[WARN] warn message")
+        mock_print.assert_called_once_with("[WARN] warn message")
+
+    @patch('builtins.print')
+    def test_error_adds_comment_to_mr_when_hook_is_set(self, mock_print):
+        # given:
+        mr_hook = MagicMock()
+        init_logger_mr_hook(mr_hook)
+        msg = "error message"
+
+        # when:
+        error(msg)
+
+        # then:
+        mr_hook.add_comment.assert_called_once_with("[ERROR] error message")
+        mock_print.assert_called_once_with("[ERROR] error message")
+
+    @patch('builtins.print')
+    def test_no_comment_when_hook_not_set(self, mock_print):
+        # given:
+        init_logger_mr_hook(None)
+        mr_hook = MagicMock()  # this one is not registered
+        msg = "error message"
+
+        # when:
+        error(msg)
+
+        # then:
+        mr_hook.add_comment.assert_not_called()
+        mock_print.assert_called_once_with("[ERROR] error message")
