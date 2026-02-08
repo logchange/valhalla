@@ -7,7 +7,7 @@ from valhalla.commit import before
 from valhalla.commit.commit import GitRepository
 from valhalla.common.checks import get_other_release_in_progress
 from valhalla.common.get_config import get_config, CommitConfig, MergeRequestConfig, Config
-from valhalla.common.logger import info, error, init_logger
+from valhalla.common.logger import info, error, init_logger, init_logger_mr_hook
 from valhalla.common.resolver import init_str_resolver, init_str_resolver_set_version, \
     init_str_resolver_custom_variables, resolve
 from valhalla.release.assets import Assets
@@ -88,12 +88,13 @@ def start():
     init_str_resolver_set_version(version_to_release.version_number_to_release)
 
     mr_hook = create_merge_request(git_host, config.merge_request)
+    init_logger_mr_hook(mr_hook)
 
     other_release = get_other_release_in_progress(git_host)
     if other_release:
         error(
             f"Cannot have more than one release in progress at the same time because it leads to inconsistencies and conflicts!\n"
-            f"Other releases in progress: {other_release}. You should merge changes from previous releases and delete branches.")
+            f"Other releases in progress: {other_release}. You should merge changes from previous releases and delete branches. CC {{AUTHOR}}")
         exit(-1)
 
     mr_hook.add_comment(
@@ -105,7 +106,7 @@ def start():
 
     commit(config.commit_after_release, token)
 
-    mr_hook.add_comment("✅ Release successful! Now wait for tagged version to be build.")
+    mr_hook.add_comment(f"✅ Release successful! Now wait for tagged version to be build. CC {{AUTHOR}}")
 
 
 def __version_to_release(git_host: GitHost) -> VersionToRelease:

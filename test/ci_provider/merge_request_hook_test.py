@@ -1,6 +1,8 @@
 import unittest
 from unittest.mock import MagicMock, patch
+
 from valhalla.ci_provider.merge_request_hook import MergeRequestHook
+
 
 class MergeRequestHookTest(unittest.TestCase):
 
@@ -15,9 +17,11 @@ class MergeRequestHookTest(unittest.TestCase):
 
         # then:
         mock_impl.assert_called_once_with(comment)
+        self.assertEqual(hook.id, 1)
+        self.assertIsNotNone(hook._add_comment_impl)
 
-    @patch("valhalla.ci_provider.merge_request_hook.info")
-    def test_skip_logs_info_on_add_comment(self, mock_info):
+
+    def test_skip_add_comment(self):
         # given:
         hook = MergeRequestHook.Skip()
         comment = "Test comment"
@@ -26,8 +30,9 @@ class MergeRequestHookTest(unittest.TestCase):
         hook.add_comment(comment)
 
         # then:
-        mock_info.assert_called_once_with(f"Skipping adding comment: {comment}, merge request has not been created")
         self.assertIsNone(hook.id)
+        self.assertIsNone(hook._add_comment_impl)
+
 
     def test_init_with_only_id(self):
         # given:
