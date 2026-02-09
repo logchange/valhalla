@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Callable, Optional
 
+from valhalla.common.resolver import resolve
+
 
 class MergeRequestHook:
     """
@@ -20,7 +22,7 @@ class MergeRequestHook:
     def add_comment(self, comment: str):
         if self._add_comment_impl is None:
             return
-        self._add_comment_impl(comment)
+        self._add_comment_impl(resolve(comment))
 
     @classmethod
     def Skip(cls) -> "MergeRequestHook":

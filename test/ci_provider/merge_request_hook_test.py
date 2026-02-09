@@ -20,6 +20,20 @@ class MergeRequestHookTest(unittest.TestCase):
         self.assertEqual(hook.id, 1)
         self.assertIsNotNone(hook._add_comment_impl)
 
+    @patch('valhalla.ci_provider.merge_request_hook.resolve')
+    def test_add_comment_calls_resolve(self, mock_resolve):
+        # given:
+        mock_impl = MagicMock()
+        hook = MergeRequestHook(mr_id=1, add_comment_impl=mock_impl)
+        comment = "Comment with {VAR}"
+        mock_resolve.return_value = "Comment with VALUE"
+
+        # when:
+        hook.add_comment(comment)
+
+        # then:
+        mock_resolve.assert_called_once_with(comment)
+        mock_impl.assert_called_once_with("Comment with VALUE")
 
     def test_skip_add_comment(self):
         # given:

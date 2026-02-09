@@ -158,7 +158,7 @@ class LoggerTest(unittest.TestCase):
         # given:
         from valhalla.common import resolver
         resolver.init_str_resolver("token123", "John Doe")
-        msg = "Author is {AUTHOR}"
+        msg = f"Author is {{AUTHOR}}"
 
         # when:
         info(msg)
