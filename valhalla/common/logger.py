@@ -36,7 +36,7 @@ def log_message(level, msg):
 
     if MR_HOOK is not None and (level == "WARN" or level == "ERROR"):
         if MR_HOOK_COMMENTS_COUNT >= 50:
-            error_msg = f"Too many comments added to Merge Request (limit: 50). Please fix previous warnings."
+            error_msg = f"[ERROR] Too many comments added to Merge Request (limit: 50). Please fix previous warnings."
             MR_HOOK.add_comment(error_msg)
             print(error_msg)
             sys.exit(1)
