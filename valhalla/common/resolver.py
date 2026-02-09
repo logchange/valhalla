@@ -90,7 +90,8 @@ def __resolve_custom_variables(string: str):
 def __resolve_from_env(string: str):
     # Iterating over each environment variable
     for env_var in os.environ:
-        string = string.replace('{' + env_var + '}', os.environ.get(env_var, ''))
+        if os.environ.get(env_var, '') is not None:
+            string = string.replace('{' + env_var + '}', os.environ.get(env_var, ''))
     return string
 
 
