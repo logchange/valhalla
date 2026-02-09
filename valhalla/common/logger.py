@@ -2,6 +2,7 @@ from valhalla.ci_provider.merge_request_hook import MergeRequestHook
 
 TOKEN: str = "not_set"
 MR_HOOK: MergeRequestHook | None = None
+MR_HOOK_COMMENTS_COUNT: int = 0
 
 
 # Allows to hide sensitive data
@@ -16,8 +17,11 @@ def init_logger_mr_hook(mr_hook: MergeRequestHook):
 
 
 def log_message(level, msg):
-    global TOKEN, MR_HOOK
+    from valhalla.common import resolver
+    import sys
+    global TOKEN, MR_HOOK, MR_HOOK_COMMENTS_COUNT
     msg = str(msg)
+    msg = resolver.resolve(msg, suppress_log=True)
     msg = msg.replace(TOKEN, "*" * len(TOKEN))
     lines = msg.split('\n')
 
@@ -28,10 +32,16 @@ def log_message(level, msg):
         if formatted_msg == "":
             formatted_msg = line_to_print
         else:
-            formatted_msg += "\n" + line_to_print
+            formatted_msg += "  \n" + line_to_print
 
     if MR_HOOK is not None and (level == "WARN" or level == "ERROR"):
+        if MR_HOOK_COMMENTS_COUNT >= 50:
+            error_msg = f"[ERROR] Too many comments added to Merge Request (limit: 50). Please fix previous warnings."
+            MR_HOOK.add_comment(error_msg)
+            print(error_msg)
+            sys.exit(1)
         MR_HOOK.add_comment(formatted_msg)
+        MR_HOOK_COMMENTS_COUNT += 1
 
 
 def info(msg):

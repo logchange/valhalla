@@ -1,8 +1,6 @@
 import os
 import re
 
-from valhalla.common.logger import info, error, warn
-
 VERSION = "not_set"
 VERSION_MAJOR = "not_set"
 VERSION_MINOR = "not_set"
@@ -36,6 +34,7 @@ def init_str_resolver_set_version(version: str):
 
 
 def init_str_resolver_custom_variables(variables: dict):
+    from valhalla.common.logger import info
     global CUSTOM_VARIABLES_DICT
 
     CUSTOM_VARIABLES_DICT.update({} if variables is None else variables)
@@ -44,18 +43,18 @@ def init_str_resolver_custom_variables(variables: dict):
         info(f"Custom variable: {key} set to: {value}")
 
 
-def resolve(string: str):
+def resolve(string: str, suppress_log: bool = False):
     if VALHALLA_TOKEN == "not_set":
-        error("There was no init_str_resolver(...) call in the code, so resolving strings does not work!")
-        error("There is bug in valhalla! Please report it here: https://github.com/logchange/valhalla/issues")
-        raise RuntimeError("There was no init_str_resolver(...) call in the code, so resolving strings does not work!")
+        return string
 
     # hierarchy
     string = __resolve_predefined(string)
     string = __resolve_custom_variables(string)
     string = __resolve_from_env(string)
 
-    info("String resolving output: " + string)
+    if not suppress_log:
+        from valhalla.common.logger import info
+        info("String resolving output: " + string)
     return string
 
 
@@ -91,7 +90,8 @@ def __resolve_custom_variables(string: str):
 def __resolve_from_env(string: str):
     # Iterating over each environment variable
     for env_var in os.environ:
-        string = string.replace('{' + env_var + '}', os.environ.get(env_var, ''))
+        if os.environ.get(env_var, '') is not None:
+            string = string.replace('{' + env_var + '}', os.environ.get(env_var, ''))
     return string
 
 
@@ -105,6 +105,7 @@ def __get_major(version):
     match = re.match(r'^(\d+)', version)
     if match:
         return match.group(1)
+    from valhalla.common.logger import warn
     warn(f"Could not get VERSION_MINOR variable value from version: {version}")
     return ""
 
@@ -113,6 +114,7 @@ def __get_minor(version):
     match = re.match(r'^\d+\.(\d+)', version)
     if match:
         return match.group(1)
+    from valhalla.common.logger import warn
     warn(f"Could not get VERSION_MINOR variable value from version: {version}")
     return ""
 
@@ -121,5 +123,6 @@ def __get_patch(version):
     match = re.match(r'^\d+\.\d+\.(\d+)', version)
     if match:
         return match.group(1)
+    from valhalla.common.logger import warn
     warn(f"Could not get VERSION_PATCH variable value from version: {version}")
     return ""
