@@ -1,7 +1,9 @@
+import subprocess
 import unittest
 from unittest.mock import patch, MagicMock
-import subprocess
+
 from valhalla.common.executor import Executor
+
 
 class ExecutorTest(unittest.TestCase):
     
@@ -21,7 +23,7 @@ class ExecutorTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0)
         self.assertEqual(result.stdout, "output")
         self.assertEqual(result.stderr, "")
-        mock_run.assert_called_once_with("ls", shell=True, check=True, capture_output=True, text=True)
+        mock_run.assert_called_once_with("ls", shell=True, executable='/bin/bash', check=True, capture_output=True, text=True)
 
     @patch('subprocess.run')
     def test_run_error(self, mock_run):
