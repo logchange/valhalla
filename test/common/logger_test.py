@@ -6,6 +6,11 @@ from valhalla.common.logger import info, warn, error, init_logger, init_logger_m
 
 class LoggerTest(unittest.TestCase):
 
+    def tearDown(self):
+        from valhalla.common import logger
+        logger.MR_HOOK = None
+        logger.MR_HOOK_COMMENTS_COUNT = 0
+
     @patch('builtins.print')
     def test_info(self, mock_print):
         # given:
@@ -120,6 +125,33 @@ class LoggerTest(unittest.TestCase):
         # then:
         mr_hook.add_comment.assert_not_called()
         mock_print.assert_called_once_with("[ERROR] error message")
+
+    @patch('builtins.print')
+    @patch('sys.exit')
+    def test_exit_after_50_comments(self, mock_exit, mock_print):
+        # given:
+        from valhalla.common import logger
+        mr_hook = MagicMock()
+        init_logger_mr_hook(mr_hook)
+        logger.MR_HOOK_COMMENTS_COUNT = 0  # reset count for test
+        
+        # when:
+        for i in range(50):
+            warn(f"warn {i}")
+        
+        # then:
+        mock_exit.assert_not_called()
+        self.assertEqual(mr_hook.add_comment.call_count, 50)
+        
+        # when:
+        warn("the 51st warn")
+        
+        # then:
+        mock_exit.assert_called_once_with(1)
+        mock_print.assert_any_call("[ERROR] Too many comments added to Merge Request (limit: 50). Please fix previous warnings.")
+        
+        # cleanup
+        logger.MR_HOOK_COMMENTS_COUNT = 0
 
     @patch('builtins.print')
     def test_resolve_author_in_log(self, mock_print):
