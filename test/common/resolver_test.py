@@ -80,12 +80,12 @@ class TestStringResolver(unittest.TestCase):
         # then:
         self.assertEqual("Testing env_value123", resolved_string)
 
-    def test_resolve_not_initialized_raises_runtime_error(self):
+    def test_resolve_not_initialized_returns_original_string(self):
         # given: reset globals (manually because they are persistent in the module)
         resolver.VALHALLA_TOKEN = "not_set"
-        
-        # when / then:
-        with self.assertRaises(RuntimeError) as context:
-            resolver.resolve("some string")
-        
-        self.assertIn("There was no init_str_resolver(...) call", str(context.exception))
+
+        # when:
+        resolved_string = resolver.resolve("some string {VERSION}")
+
+        # then:
+        self.assertEqual("some string {VERSION}", resolved_string)

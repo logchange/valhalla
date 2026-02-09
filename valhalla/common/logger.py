@@ -16,8 +16,10 @@ def init_logger_mr_hook(mr_hook: MergeRequestHook):
 
 
 def log_message(level, msg):
+    from valhalla.common import resolver
     global TOKEN, MR_HOOK
     msg = str(msg)
+    msg = resolver.resolve(msg, suppress_log=True)
     msg = msg.replace(TOKEN, "*" * len(TOKEN))
     lines = msg.split('\n')
 

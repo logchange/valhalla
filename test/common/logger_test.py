@@ -120,3 +120,16 @@ class LoggerTest(unittest.TestCase):
         # then:
         mr_hook.add_comment.assert_not_called()
         mock_print.assert_called_once_with("[ERROR] error message")
+
+    @patch('builtins.print')
+    def test_resolve_author_in_log(self, mock_print):
+        # given:
+        from valhalla.common import resolver
+        resolver.init_str_resolver("token123", "John Doe")
+        msg = "Author is {AUTHOR}"
+
+        # when:
+        info(msg)
+
+        # then:
+        mock_print.assert_called_once_with("[INFO] Author is John Doe")
