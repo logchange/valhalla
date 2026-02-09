@@ -1,5 +1,4 @@
-import subprocess
-
+from valhalla.common.executor import Executor
 from valhalla.common.get_config import ReleaseDescriptionConfig
 from valhalla.common.logger import error, info
 from valhalla.common.resolver import resolve
@@ -19,20 +18,10 @@ class Description:
         exit(1)
 
     def __get_from_command(self):
-        try:
-            from_command = resolve(self.__from_command)
-            result = subprocess.run(from_command, shell=True, check=True, capture_output=True, text=True)
-            stdout = result.stdout
-            stderr = result.stderr
-            if stdout:
-                info(f"Output for command '{from_command}':\n{stdout}")
-            if stderr:
-                error(f"Error output for command '{from_command}':\n{stderr}")
+        from_command = resolve(self.__from_command)
+        result = Executor.run(from_command)
 
-            return stdout
-        except subprocess.CalledProcessError as e:
-            error(f"Error executing command '{e.cmd}': {e.stderr}")
-            return "error, check valhalla release logs"
-        except Exception as e:
-            error(f"Error occurred: {str(e)}")
-            return "error, check valhalla release logs"
+        if result:
+            return result.stdout
+
+        return "error, check valhalla release logs"

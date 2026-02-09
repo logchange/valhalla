@@ -1,8 +1,8 @@
 import os
 import re
-import subprocess
 from typing import List
 
+from valhalla.common.executor import Executor
 from valhalla.common.logger import info, error
 
 BASE_PREFIX = "release-"
@@ -40,20 +40,10 @@ class VersionToRelease:
         pass
 
     def __get_version_from_command(self, from_command: str):
-        try:
-            result = subprocess.run(from_command, shell=True, check=True, capture_output=True, text=True)
-            stdout = result.stdout
-            stderr = result.stderr
-            if stdout:
-                info(f"Output for version from command '{from_command}':\n{stdout}")
-            if stderr:
-                error(f"Error output for version from command '{from_command}':\n{stderr}")
+        result = Executor.run(from_command)
 
-            self.version_number_to_release = stdout
-        except subprocess.CalledProcessError as e:
-            error(f"Error executing command '{e.cmd}': {e.stderr}")
-        except Exception as e:
-            error(f"Error occurred: {str(e)}")
+        if result:
+            self.version_number_to_release = result.stdout
 
 
 def get_release_kinds(path: str) -> List[ReleaseKind]:
