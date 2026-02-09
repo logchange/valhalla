@@ -28,7 +28,7 @@ def log_message(level, msg):
         if formatted_msg == "":
             formatted_msg = line_to_print
         else:
-            formatted_msg += "\n" + line_to_print
+            formatted_msg += "  \n" + line_to_print
 
     if MR_HOOK is not None and (level == "WARN" or level == "ERROR"):
         MR_HOOK.add_comment(formatted_msg)

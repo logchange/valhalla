@@ -94,6 +94,20 @@ class LoggerTest(unittest.TestCase):
         mock_print.assert_called_once_with("[ERROR] error message")
 
     @patch('builtins.print')
+    def test_multiline_warn_adds_comment_with_proper_newlines(self, mock_print):
+        # given:
+        mr_hook = MagicMock()
+        init_logger_mr_hook(mr_hook)
+        msg = "line1\nline2"
+
+        # when:
+        warn(msg)
+
+        # then:
+        expected_comment = "[WARN] line1  \n[WARN] line2"
+        mr_hook.add_comment.assert_called_once_with(expected_comment)
+
+    @patch('builtins.print')
     def test_no_comment_when_hook_not_set(self, mock_print):
         # given:
         init_logger_mr_hook(None)
