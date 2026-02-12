@@ -98,7 +98,7 @@ def start():
         exit(-1)
 
     mr_hook.add_comment(
-        f"⏳ Release proces of version {version_to_release.version_number_to_release} has begun! Please wait.")
+        f"⏳ Release process for version {version_to_release.version_number_to_release} has started. Please wait.")
 
     commit(config.commit_before_release, token)
 
