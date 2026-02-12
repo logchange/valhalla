@@ -94,11 +94,11 @@ def start():
     if other_release:
         error(
             f"Cannot have more than one release in progress at the same time because it leads to inconsistencies and conflicts!\n"
-            f"Other releases in progress: {other_release}. You should merge changes from previous releases and delete branches. CC {{AUTHOR}}")
+            f"Other releases in progress: {other_release}. You should merge changes from previous releases and delete branches. CC @{{AUTHOR}}")
         exit(-1)
 
     mr_hook.add_comment(
-        f"⏳ Release proces of version {version_to_release.version_number_to_release} has begun! Please wait.")
+        f"⏳ Release process for version {version_to_release.version_number_to_release} has started. Please wait.")
 
     commit(config.commit_before_release, token)
 
@@ -106,7 +106,7 @@ def start():
 
     commit(config.commit_after_release, token)
 
-    mr_hook.add_comment(f"✅ Release successful! Now wait for tagged version to be build. CC {{AUTHOR}}")
+    mr_hook.add_comment(f"✅ Release successful! Now wait for tagged version to be build. CC @{{AUTHOR}}")
 
 
 def __version_to_release(git_host: GitHost) -> VersionToRelease:
