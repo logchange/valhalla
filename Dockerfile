@@ -27,7 +27,10 @@ RUN apk --update --no-cache add  \
     npm && \
     npm install -g pnpm
 
-RUN wget https://github.com/logchange/logchange/releases/download/1.19.12/logchange-linuxx64.zip \
+
+ARG LOGCHANGE_VERSION="1.19.12" # renovate: datasource=github-releases depName=logchange packageName=logchange/logchange
+
+RUN wget https://github.com/logchange/logchange/releases/download/${LOGCHANGE_VERSION}/logchange-linuxx64.zip \
     && unzip logchange-linuxx64.zip \
     && mv bins/logchange-linuxx64/logchange /usr/local/bin/logchange \
     && chmod +x /usr/local/bin/logchange \
