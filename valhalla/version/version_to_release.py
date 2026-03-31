@@ -32,11 +32,11 @@ class VersionToRelease:
         return self.version_number_to_release is None or self.version_number_to_release.strip() == ""
 
     def from_config(self, config):
-        if config.version is None or config.version.from_command is None or config.version.from_command.strip() == "":
+        if config.version_config is None or config.version_config.from_command is None or config.version_config.from_command.strip() == "":
             info("Version is not specified in valhalla.yml, skipping")
             return
         else:
-            self.__get_version_from_command(config.version.from_command)
+            self.__get_version_from_command(config.version_config.from_command)
         pass
 
     def __get_version_from_command(self, from_command: str):
