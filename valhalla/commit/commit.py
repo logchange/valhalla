@@ -1,6 +1,7 @@
 from git import Repo
+from git.exc import GitCommandError
 
-from valhalla.common.logger import info, warn
+from valhalla.common.logger import info, warn, error
 from valhalla.common.resolver import resolve
 
 
@@ -79,7 +80,17 @@ class GitRepository:
 
         info(f"Current branch: {branch}")
 
-        self.repository.git.push(self.__get_push_url(token), str(branch))
+        try:
+            self.repository.git.push(self.__get_push_url(token), str(branch))
+        except GitCommandError as e:
+            stderr = (e.stderr or "").strip()
+            stdout = (e.stdout or "").strip()
+            details = stderr if stderr else stdout
+            error(
+                f"Failed to push to remote (exit code {e.status}). CC @{{AUTHOR}}\n"
+                f"{details}"
+            )
+            exit(-1)
         info("Performed push")
 
     def __get_push_url(self, token):
