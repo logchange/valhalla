@@ -1,6 +1,8 @@
 import unittest
 from unittest.mock import Mock, patch, call
 
+from git.exc import GitCommandError
+
 from valhalla.commit.commit import is_ignored, GitRepository
 
 
@@ -151,6 +153,43 @@ class GitRepositoryPushTest(unittest.TestCase):
 
         expected_push_url = 'https://valhalla-bot:abc@github.com/org/repo.git'
         repo.git.push.assert_called_once_with(expected_push_url, 'main')
+
+    @patch('valhalla.commit.commit.error')
+    @patch('valhalla.commit.commit.info')
+    @patch('valhalla.commit.commit.Repo')
+    def test_push_failure_reports_error_and_exits(self, mock_repo_cls: Mock, mock_info: Mock, mock_error: Mock):
+        repo = Mock()
+        mock_repo_cls.init.return_value = repo
+        repo.git = Mock()
+        repo.active_branch = 'release-26.2.0'
+
+        origin = Mock()
+        origin.url = 'https://gitlab.example.com/group/project.git'
+        repo.remote.return_value = origin
+
+        # Simulate a push rejection from a pre-receive hook
+        stderr_msg = (
+            "remote: GitLab: You cannot push commits for 'botnet@softnet.pl'. "
+            "You can only push commits if the committer email is one of your own verified emails.\n"
+            " ! [remote rejected] release-26.2.0 -> release-26.2.0 (pre-receive hook declined)"
+        )
+        repo.git.push.side_effect = GitCommandError(
+            ['git', 'push'], status=1, stderr=stderr_msg, stdout=''
+        )
+
+        gr = GitRepository('u', 'e')
+
+        with self.assertRaises(SystemExit) as ctx:
+            gr.push('abc')
+
+        self.assertEqual(ctx.exception.code, -1)
+        # Ensure error was reported (this is what posts a comment to MR)
+        self.assertTrue(mock_error.called)
+        args, _ = mock_error.call_args
+        logged = args[0]
+        self.assertIn("Failed to push to remote", logged)
+        self.assertIn("pre-receive hook declined", logged)
+        self.assertIn("@{AUTHOR}", logged)
 
     @patch('valhalla.commit.commit.info')
     @patch('valhalla.commit.commit.Repo')
