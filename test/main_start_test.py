@@ -53,3 +53,41 @@ class MainStartTest(unittest.TestCase):
             self.assertEqual(args[2], "1.2.3")
             # merge request config is default and disabled in our test YAML
             self.assertEqual(mock_create_mr.call_count, 1)
+
+    def test_start_creates_mr_and_posts_error_when_version_empty(self):
+        # given: version is empty and from_config does not resolve it (e.g. command failed)
+        mock_vtr = MagicMock()
+        mock_vtr.is_version_empty.return_value = True
+        mock_vtr.get_config_file_path.return_value = "test/resources/valhalla.yml"
+
+        provider_hook = MagicMock()
+
+        def _mock_requests_get(url):
+            class R:
+                status_code = 200
+
+                def __init__(self, text):
+                    self.text = text
+
+            with open("test/resources/valhalla-extended.yml", "r") as f:
+                return R(f.read())
+
+        with patch('valhalla.main.__version_to_release', return_value=mock_vtr), \
+                patch('valhalla.extends.valhalla_extends.requests.get', side_effect=_mock_requests_get), \
+                patch('valhalla.main.get_valhalla_token', return_value='TOKEN'), \
+                patch('os.environ.get', side_effect=fake_environ_get), \
+                patch('valhalla.ci_provider.git_host.GitHost.get_author', return_value='AUTHOR'), \
+                patch('valhalla.main.create_merge_request', return_value=provider_hook) as mock_create_mr:
+            from valhalla.main import start
+
+            # when: running start should exit with error
+            with self.assertRaises(SystemExit):
+                start()
+
+            # then: MR is created so the error is posted as a comment
+            self.assertEqual(mock_create_mr.call_count, 1)
+            # The "Version to release is empty" error is posted to the MR
+            posted = "\n".join(
+                call_args[0][0] for call_args in provider_hook.add_comment.call_args_list
+            )
+            self.assertIn("Version to release is empty", posted)

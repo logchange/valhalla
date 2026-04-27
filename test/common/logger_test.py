@@ -10,6 +10,7 @@ class LoggerTest(unittest.TestCase):
         from valhalla.common import logger
         logger.MR_HOOK = None
         logger.MR_HOOK_COMMENTS_COUNT = 0
+        logger.PENDING_MR_COMMENTS = []
 
     @patch('builtins.print')
     def test_info(self, mock_print):
@@ -152,6 +153,48 @@ class LoggerTest(unittest.TestCase):
         
         # cleanup
         logger.MR_HOOK_COMMENTS_COUNT = 0
+
+    @patch('builtins.print')
+    def test_pending_warn_and_error_flushed_when_hook_set_later(self, mock_print):
+        # given: errors logged before MR hook is initialized
+        warn("early warn")
+        error("early error")
+
+        # when: MR hook is initialized later
+        mr_hook = MagicMock()
+        init_logger_mr_hook(mr_hook)
+
+        # then: pending comments are flushed in order
+        mr_hook.add_comment.assert_any_call("[WARN] early warn")
+        mr_hook.add_comment.assert_any_call("[ERROR] early error")
+        self.assertEqual(mr_hook.add_comment.call_count, 2)
+
+    @patch('builtins.print')
+    def test_pending_buffer_cleared_after_flush(self, mock_print):
+        # given: an early error and a hook set up
+        error("early error")
+        mr_hook = MagicMock()
+        init_logger_mr_hook(mr_hook)
+
+        # when: a new hook is set up afterwards
+        mr_hook.reset_mock()
+        another_hook = MagicMock()
+        init_logger_mr_hook(another_hook)
+
+        # then: previously flushed comments are not re-flushed
+        another_hook.add_comment.assert_not_called()
+
+    @patch('builtins.print')
+    def test_info_not_buffered_before_hook(self, mock_print):
+        # given: an info log before MR hook is initialized
+        info("informational")
+
+        # when: MR hook is initialized later
+        mr_hook = MagicMock()
+        init_logger_mr_hook(mr_hook)
+
+        # then: info messages are never sent to MR
+        mr_hook.add_comment.assert_not_called()
 
     @patch('builtins.print')
     def test_resolve_author_in_log(self, mock_print):
