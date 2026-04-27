@@ -78,6 +78,12 @@ def start():
         version_to_release.from_config(config)
 
     if version_to_release.is_version_empty():
+        try:
+            mr_hook = create_merge_request(git_host, config.merge_request)
+        except Exception as e:
+            info(f"Could not create merge request for error reporting: {e}")
+            mr_hook = MergeRequestHook.Skip()
+        init_logger_mr_hook(mr_hook)
         error(
             f"Version to release is empty, exiting! Create branch with name {BASE_PREFIX}X.X.X or just {BASE_PREFIX}\n"
             f"and define in valhalla.yml version to release. You can also you VALHALLA_RELEASE_CMD to define it.\n"
