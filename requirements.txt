@@ -2,5 +2,5 @@
 PyYAML==6.0.3
 GitPython==3.1.47
 python-gitlab==8.2.0
-requests==2.33.1
+requests==2.34.0
 pytest==9.0.3
