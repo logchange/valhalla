@@ -95,6 +95,20 @@ class VersionFromCommandTest(unittest.TestCase):
         mock_executor_run.assert_called_once_with('some-command')
 
     @patch('valhalla.common.executor.Executor.run')
+    def test_from_config_strips_newlines_and_carriage_returns(self, mock_executor_run):
+        # given:
+        from valhalla.common.executor import ExecutionResult
+        mock_executor_run.return_value = ExecutionResult(0, '\r\n1.2.3\r\n', '')
+
+        vtr = VersionToRelease('', ReleaseKind('valhalla.yml', '', '.'))
+
+        # when:
+        vtr.from_config(_Cfg(_VersionConfig('cat version.txt')))
+
+        # then:
+        self.assertEqual('1.2.3', vtr.version_number_to_release)
+
+    @patch('valhalla.common.executor.Executor.run')
     def test_from_config_overwrites_existing_version(self, mock_executor_run):
         # given:
         from valhalla.common.executor import ExecutionResult

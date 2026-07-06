@@ -43,7 +43,7 @@ class VersionToRelease:
         result = Executor.run(from_command)
 
         if result:
-            self.version_number_to_release = result.stdout
+            self.version_number_to_release = result.stdout.replace("\n", "").replace("\r", "")
 
 
 def get_release_kinds(path: str) -> List[ReleaseKind]:
