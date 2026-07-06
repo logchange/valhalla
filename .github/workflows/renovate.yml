@@ -13,9 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Self-hosted Renovate
-        uses: renovatebot/github-action@v46.1.14
+        uses: renovatebot/github-action@v46.1.17
         with:
           token: ${{ secrets.LOGCHANGE_PAT_TOKEN }}
           configurationFile: .github/renovate-config.js
