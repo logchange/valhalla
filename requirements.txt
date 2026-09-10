@@ -1,6 +1,6 @@
 # for alpine we need py3-yaml
 PyYAML==6.0.3
-GitPython==3.1.58
+GitPython==3.1.59
 python-gitlab==8.5.0
 requests==2.34.2
 pytest==9.1.1
