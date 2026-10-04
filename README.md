@@ -141,6 +141,19 @@ merge_request:
 **It is really useful with `extends` mechanism, f.e. define general template with `variables`
 which will be overriden in child `valhalla.yml`.**
 
+### 🔁 auto-merge
+
+After a successful release valhalla can enable auto-merge on the created MR/PR, so it is merged
+automatically as soon as it gets required approvals and the pipeline passes.
+
+```yml
+merge_request:
+  auto_merge: True
+```
+
+- **GitLab:** configure approval rules, otherwise the MR is merged right after the pipeline succeeds.
+- **GitHub:** enable "Allow auto-merge" in repository settings and branch protection with required reviews.
+
 ### 🐛 environment variables
 
 Valhalla allows you to use any variable defined in your environment system, it is useful f.e when you

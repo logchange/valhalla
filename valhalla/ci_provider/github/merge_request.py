@@ -59,7 +59,21 @@ class GitHubValhallaPullRequest:
             except Exception as e:
                 warn(f"Could not add comment to pull request because: {e}")
 
-        return MergeRequestHook(pr_number, _add_comment)
+        pr_node_id = pr.get('node_id')
+
+        def _enable_auto_merge():
+            try:
+                graphql_url = os.getenv("GITHUB_GRAPHQL_URL", f"{self.client.api_url}/graphql")
+                query = "mutation($id: ID!) { enablePullRequestAutoMerge(input: {pullRequestId: $id}) { clientMutationId } }"
+                resp = self.client.post(graphql_url, json={"query": query, "variables": {"id": pr_node_id}})
+                if resp.status_code >= 300 or resp.json().get('errors'):
+                    warn(f"Could not enable auto-merge for pull request: {resp.status_code} {resp.text}")
+                else:
+                    info("Auto-merge enabled, pull request will be merged when approvals and checks succeed")
+            except Exception as e:
+                warn(f"Could not enable auto-merge for pull request because: {e}")
+
+        return MergeRequestHook(pr_number, _add_comment, _enable_auto_merge if merge_request_config.auto_merge else None)
 
     def __request_reviewers(self, pr_number: int, reviewers):
         try:

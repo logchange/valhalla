@@ -101,6 +101,7 @@ class GetConfigTest(unittest.TestCase):
         self.assertEqual(config.merge_request.title, "Releasing version {VERSION} with valhalla!")
         self.assertEqual(config.merge_request.description, "Created by Valhalla! Visit https://github.com/logchange/valhalla and leave a star!")
         self.assertEqual(config.merge_request.reviewers, [])
+        self.assertEqual(config.merge_request.auto_merge, False)
 
         mock_open_file.assert_called_once_with(self.config_path)
 
@@ -121,6 +122,7 @@ class GetConfigTest(unittest.TestCase):
         merge_request:
             enabled: False
             title: test mr title
+            auto_merge: True
         """,
     )
     def test_get_config_mr_disabled(self, mock_open_file):
@@ -133,6 +135,7 @@ class GetConfigTest(unittest.TestCase):
         self.assertEqual(config.merge_request.title, "test mr title")
         self.assertEqual(config.merge_request.description, "Created by Valhalla! Visit https://github.com/logchange/valhalla and leave a star!")
         self.assertEqual(config.merge_request.reviewers, None)
+        self.assertEqual(config.merge_request.auto_merge, True)
 
         mock_open_file.assert_called_once_with(self.config_path)
 

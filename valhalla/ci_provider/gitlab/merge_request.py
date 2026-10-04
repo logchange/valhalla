@@ -51,7 +51,15 @@ class GitLabValhallaMergeRequest(MergeRequest):
             except Exception as e:
                 warn(f"Could not add comment to merge request because: {e}")
 
-        return MergeRequestHook(mr_iid, _add_comment)
+        def _enable_auto_merge():
+            try:
+                mr_obj = self.project.mergerequests.get(mr_iid, iid=True)
+                mr_obj.merge(merge_when_pipeline_succeeds=True)
+                info("Auto-merge enabled, merge request will be merged when approvals and pipeline succeed")
+            except Exception as e:
+                warn(f"Could not enable auto-merge for merge request because: {e}")
+
+        return MergeRequestHook(mr_iid, _add_comment, _enable_auto_merge if merge_request_config.auto_merge else None)
 
     def __get_reviewer_ids(self, reviewers: List[str]) -> List[int]:
         result = []

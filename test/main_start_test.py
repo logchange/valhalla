@@ -53,6 +53,7 @@ class MainStartTest(unittest.TestCase):
             self.assertEqual(args[2], "1.2.3")
             # merge request config is default and disabled in our test YAML
             self.assertEqual(mock_create_mr.call_count, 1)
+            mock_create_mr.return_value.enable_auto_merge.assert_called_once()
 
     def test_start_creates_mr_and_posts_error_when_version_empty(self):
         # given: version is empty and from_config does not resolve it (e.g. command failed)
@@ -91,3 +92,4 @@ class MainStartTest(unittest.TestCase):
                 call_args[0][0] for call_args in provider_hook.add_comment.call_args_list
             )
             self.assertIn("Version to release is empty", posted)
+            provider_hook.enable_auto_merge.assert_not_called()

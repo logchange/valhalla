@@ -113,6 +113,7 @@ def start():
     commit(config.commit_after_release, token)
 
     mr_hook.add_comment(f"✅ Release successful! Now wait for tagged version to be build. CC @{{AUTHOR}}")
+    mr_hook.enable_auto_merge()
 
 
 def __version_to_release(git_host: GitHost) -> VersionToRelease:
