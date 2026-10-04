@@ -216,6 +216,34 @@ class TestGitLabValhallaMergeRequest(unittest.TestCase):
     @patch("valhalla.ci_provider.gitlab.merge_request.resolve")
     @patch("valhalla.ci_provider.gitlab.merge_request.info")
     @patch("valhalla.ci_provider.gitlab.merge_request.warn")
+    def test_enable_auto_merge_exception(self, mock_warn, mock_info, mock_resolve, mock_get_project_id,
+                                         mock_get_gitlab_client):
+        with patch.dict('os.environ', {'CI_COMMIT_BRANCH': 'feature-branch'}):
+            # given:
+            mock_get_project_id.return_value = "123"
+            mock_resolve.side_effect = lambda x: x
+            mock_gitlab_client = MagicMock()
+            mock_project = MagicMock()
+            mock_gitlab_client.projects.get.return_value = mock_project
+            mock_get_gitlab_client.return_value = mock_gitlab_client
+            mock_project.mergerequests.get.return_value.merge.side_effect = Exception("405 Method Not Allowed")
+
+            merge_request = GitLabValhallaMergeRequest()
+            config = MergeRequestConfig(enabled=True, target_branch="main", title="T", description="D", reviewers=[],
+                                        auto_merge=True)
+
+            # when:
+            hook = merge_request.create(config)
+            hook.enable_auto_merge()
+
+            # then:
+            mock_warn.assert_any_call("Could not enable auto-merge for merge request because: 405 Method Not Allowed")
+
+    @patch("valhalla.ci_provider.gitlab.merge_request.get_gitlab_client")
+    @patch("valhalla.ci_provider.gitlab.merge_request.get_project_id")
+    @patch("valhalla.ci_provider.gitlab.merge_request.resolve")
+    @patch("valhalla.ci_provider.gitlab.merge_request.info")
+    @patch("valhalla.ci_provider.gitlab.merge_request.warn")
     def test_auto_merge_disabled_by_default(self, mock_warn, mock_info, mock_resolve, mock_get_project_id,
                                             mock_get_gitlab_client):
         with patch.dict('os.environ', {'CI_COMMIT_BRANCH': 'feature-branch'}):

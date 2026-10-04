@@ -290,3 +290,33 @@ class GitHubMergeRequestTest(unittest.TestCase):
 
             # then
             mock_warn.assert_any_call("Could not enable auto-merge for pull request: 200 auto-merge is not allowed")
+
+    @patch("valhalla.ci_provider.github.merge_request.GitHubClient")
+    @patch("valhalla.ci_provider.github.merge_request.resolve")
+    @patch("valhalla.ci_provider.github.merge_request.info")
+    @patch("valhalla.ci_provider.github.merge_request.warn")
+    def test_enable_auto_merge_exception(self, mock_warn, mock_info, mock_resolve, mock_client_cls):
+        # given
+        with patch.dict('os.environ', {'GITHUB_REF_NAME': 'feature-branch'}):
+            mock_resolve.side_effect = lambda x: x
+            mock_client = MagicMock()
+            mock_client.api_url = "https://api.github.com"
+            mock_client.repo = "owner/repo"
+
+            pr_response = MagicMock()
+            pr_response.status_code = 201
+            pr_response.json.return_value = {"html_url": "url", "number": 7, "node_id": "PR_node7"}
+
+            mock_client.post.side_effect = [pr_response, Exception("Network error")]
+            mock_client_cls.return_value = mock_client
+
+            pr = GitHubValhallaPullRequest()
+            config = MergeRequestConfig(enabled=True, target_branch="main", title="T", description="D", reviewers=[],
+                                        auto_merge=True)
+
+            # when
+            hook = pr.create(config)
+            hook.enable_auto_merge()
+
+            # then
+            mock_warn.assert_any_call("Could not enable auto-merge for pull request because: Network error")
