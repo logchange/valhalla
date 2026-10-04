@@ -320,3 +320,45 @@ class GitHubMergeRequestTest(unittest.TestCase):
 
             # then
             mock_warn.assert_any_call("Could not enable auto-merge for pull request because: Network error")
+
+
+class GitHubMergeRequestEmptyCommitTest(unittest.TestCase):
+
+    @patch("valhalla.ci_provider.github.merge_request.get_valhalla_token", return_value="token")
+    @patch("valhalla.ci_provider.github.merge_request.GitRepository")
+    @patch("valhalla.ci_provider.github.merge_request.GitHubClient")
+    @patch("valhalla.ci_provider.github.merge_request.resolve")
+    @patch("valhalla.ci_provider.github.merge_request.info")
+    @patch("valhalla.ci_provider.github.merge_request.warn")
+    def test_create_empty_commit_and_retry_when_no_commits_between(self, mock_warn, mock_info, mock_resolve,
+                                                                   mock_client_cls, mock_git_cls, mock_token):
+        # given
+        with patch.dict('os.environ', {'GITHUB_REF_NAME': 'release-1.0.0'}):
+            mock_resolve.side_effect = lambda x: x
+            mock_client = MagicMock()
+            mock_client.api_url = "https://api.github.com"
+            mock_client.repo = "owner/repo"
+
+            no_commits_response = MagicMock()
+            no_commits_response.status_code = 422
+            no_commits_response.text = '{"errors":[{"message":"No commits between main and release-1.0.0"}]}'
+            pr_response = MagicMock()
+            pr_response.status_code = 201
+            pr_response.json.return_value = {"html_url": "https://github.com/owner/repo/pull/3", "number": 3}
+
+            mock_client.post.side_effect = [no_commits_response, pr_response]
+            mock_client_cls.return_value = mock_client
+            mock_git = mock_git_cls.return_value
+
+            pr = GitHubValhallaPullRequest()
+            config = MergeRequestConfig(enabled=True, target_branch="main", title="t", description="d", reviewers=[])
+
+            # when
+            pr.create(config)
+
+            # then
+            mock_git.commit_empty.assert_called_once()
+            mock_git.push.assert_called_once_with("token")
+            self.assertEqual(2, mock_client.post.call_count)
+            mock_info.assert_any_call("Created pull request: https://github.com/owner/repo/pull/3")
+            mock_warn.assert_not_called()
