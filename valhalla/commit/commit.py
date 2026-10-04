@@ -74,6 +74,11 @@ class GitRepository:
         self.status()
         return True
 
+    def commit_empty(self, msg: str):
+        msg += " [VALHALLA SKIP]"
+        self.repository.git.commit("--allow-empty", "-m", resolve(msg))
+        info(f"Created empty commit: {self.repository.head.commit}")
+
     def push(self, token):
         info("Preparing to push")
         branch = self.repository.active_branch
