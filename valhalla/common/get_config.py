@@ -19,12 +19,14 @@ class VersionConfig:
 
 
 class MergeRequestConfig:
-    def __init__(self, enabled: bool, target_branch: str, title: str, description: str, reviewers: List[str]):
+    def __init__(self, enabled: bool, target_branch: str, title: str, description: str, reviewers: List[str],
+                 auto_merge: bool = False):
         self.enabled = enabled
         self.target_branch = target_branch
         self.title = title
         self.description = description
         self.reviewers = reviewers
+        self.auto_merge = auto_merge
 
     def __repr__(self):
         return f"\n" \
@@ -34,6 +36,7 @@ class MergeRequestConfig:
                f"     title={self.title} \n" \
                f"     description={self.description} \n" \
                f"     reviewers={self.reviewers} \n" \
+               f"     auto_merge={self.auto_merge} \n" \
                f"   )"
 
 
@@ -303,11 +306,13 @@ def get_merge_request_part(merge_request_dict: dict) -> MergeRequestConfig:
     description = get_from_dict(merge_request_dict, 'description', False)
 
     reviewers = get_from_dict(merge_request_dict, 'reviewers', False)
+    auto_merge = bool(get_from_dict(merge_request_dict, 'auto_merge', False))
     return MergeRequestConfig(enabled,
                               target_branch,
                               get_default_merge_request_title(title),
                               get_default_merge_request_description(description),
-                              reviewers)
+                              reviewers,
+                              auto_merge)
 
 
 def get_default_merge_request_title(title: str):
