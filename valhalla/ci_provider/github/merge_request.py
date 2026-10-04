@@ -10,8 +10,7 @@ from valhalla.common.resolver import resolve
 
 from valhalla.ci_provider.merge_request_hook import MergeRequestHook
 
-EMPTY_COMMIT_MSG = ("Empty commit created by Valhalla to open pull request before release changes, "
-                    "see: https://stackoverflow.com/questions/46577500/why-cant-i-create-an-empty-pull-request-for-discussion-prior-to-developing-chan")
+EMPTY_COMMIT_MSG = "Empty commit to create PR to start release"
 
 
 class GitHubValhallaPullRequest:
@@ -44,6 +43,8 @@ class GitHubValhallaPullRequest:
         }
 
         resp = self.client.post(url, json=payload)
+        # GitHub does not allow empty pull requests, see:
+        # https://stackoverflow.com/questions/46577500/why-cant-i-create-an-empty-pull-request-for-discussion-prior-to-developing-chan
         if resp.status_code == 422 and "No commits between" in resp.text:
             info("GitHub does not allow creating pull request without commits, creating empty commit")
             git = GitRepository(None, None)
