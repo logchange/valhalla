@@ -1,5 +1,8 @@
 import os
+import time
 from typing import List
+
+from git import Repo
 
 from valhalla.ci_provider.git_host import MergeRequest
 from valhalla.ci_provider.gitlab.common import get_gitlab_client, get_project_id
@@ -53,8 +56,16 @@ class GitLabValhallaMergeRequest(MergeRequest):
 
         def _enable_auto_merge():
             try:
+                head_sha = Repo('.').head.commit.hexsha
                 mr_obj = self.project.mergerequests.get(mr_iid, iid=True)
-                mr_obj.merge(merge_when_pipeline_succeeds=True)
+                # GitLab refreshes the MR asynchronously after push; enabling auto-merge before that
+                # (or without sha) makes GitLab abort it with "source branch was updated"
+                for _ in range(30):
+                    if mr_obj.sha == head_sha:
+                        break
+                    time.sleep(2)
+                    mr_obj = self.project.mergerequests.get(mr_iid, iid=True)
+                mr_obj.merge(sha=head_sha, merge_when_pipeline_succeeds=True)
                 info("Auto-merge enabled, merge request will be merged when approvals and pipeline succeed")
             except Exception as e:
                 warn(f"Could not enable auto-merge for merge request because: {e}")
