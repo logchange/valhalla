@@ -182,7 +182,9 @@ class TestGitLabValhallaMergeRequest(unittest.TestCase):
     @patch("valhalla.ci_provider.gitlab.merge_request.resolve")
     @patch("valhalla.ci_provider.gitlab.merge_request.info")
     @patch("valhalla.ci_provider.gitlab.merge_request.warn")
-    def test_enable_auto_merge(self, mock_warn, mock_info, mock_resolve, mock_get_project_id,
+    @patch("valhalla.ci_provider.gitlab.merge_request.Repo")
+    @patch("valhalla.ci_provider.gitlab.merge_request.time.sleep")
+    def test_enable_auto_merge(self, mock_sleep, mock_repo, mock_warn, mock_info, mock_resolve, mock_get_project_id,
                                mock_get_gitlab_client):
         with patch.dict('os.environ', {'CI_COMMIT_BRANCH': 'feature-branch'}):
             # given:
@@ -196,8 +198,11 @@ class TestGitLabValhallaMergeRequest(unittest.TestCase):
             mock_gitlab_client.projects.get.return_value = mock_project
             mock_get_gitlab_client.return_value = mock_gitlab_client
 
-            mock_mr_obj = MagicMock()
-            mock_project.mergerequests.get.return_value = mock_mr_obj
+            mock_repo.return_value.head.commit.hexsha = "new-sha"
+            stale_mr_obj = MagicMock(sha="old-sha", detailed_merge_status="mergeable")
+            checking_mr_obj = MagicMock(sha="new-sha", detailed_merge_status="checking")
+            mock_mr_obj = MagicMock(sha="new-sha", detailed_merge_status="mergeable")
+            mock_project.mergerequests.get.side_effect = [stale_mr_obj, checking_mr_obj, mock_mr_obj]
 
             merge_request = GitLabValhallaMergeRequest()
             config = MergeRequestConfig(enabled=True, target_branch="main", title="T", description="D", reviewers=[],
@@ -208,7 +213,10 @@ class TestGitLabValhallaMergeRequest(unittest.TestCase):
             hook.enable_auto_merge()
 
             # then:
-            mock_mr_obj.merge.assert_called_once_with(merge_when_pipeline_succeeds=True)
+            self.assertEqual(mock_sleep.call_count, 2)
+            stale_mr_obj.merge.assert_not_called()
+            checking_mr_obj.merge.assert_not_called()
+            mock_mr_obj.merge.assert_called_once_with(sha="new-sha", merge_when_pipeline_succeeds=True)
             mock_info.assert_any_call("Auto-merge enabled, merge request will be merged when approvals and pipeline succeed")
 
     @patch("valhalla.ci_provider.gitlab.merge_request.get_gitlab_client")
@@ -216,7 +224,9 @@ class TestGitLabValhallaMergeRequest(unittest.TestCase):
     @patch("valhalla.ci_provider.gitlab.merge_request.resolve")
     @patch("valhalla.ci_provider.gitlab.merge_request.info")
     @patch("valhalla.ci_provider.gitlab.merge_request.warn")
-    def test_enable_auto_merge_exception(self, mock_warn, mock_info, mock_resolve, mock_get_project_id,
+    @patch("valhalla.ci_provider.gitlab.merge_request.Repo")
+    @patch("valhalla.ci_provider.gitlab.merge_request.time.sleep")
+    def test_enable_auto_merge_exception(self, mock_sleep, mock_repo, mock_warn, mock_info, mock_resolve, mock_get_project_id,
                                          mock_get_gitlab_client):
         with patch.dict('os.environ', {'CI_COMMIT_BRANCH': 'feature-branch'}):
             # given:
@@ -226,6 +236,8 @@ class TestGitLabValhallaMergeRequest(unittest.TestCase):
             mock_project = MagicMock()
             mock_gitlab_client.projects.get.return_value = mock_project
             mock_get_gitlab_client.return_value = mock_gitlab_client
+            mock_repo.return_value.head.commit.hexsha = "new-sha"
+            mock_project.mergerequests.get.return_value = MagicMock(sha="new-sha", detailed_merge_status="need_rebase")
             mock_project.mergerequests.get.return_value.merge.side_effect = Exception("405 Method Not Allowed")
 
             merge_request = GitLabValhallaMergeRequest()
@@ -237,7 +249,8 @@ class TestGitLabValhallaMergeRequest(unittest.TestCase):
             hook.enable_auto_merge()
 
             # then:
-            mock_warn.assert_any_call("Could not enable auto-merge for merge request because: 405 Method Not Allowed")
+            mock_warn.assert_any_call("Could not enable auto-merge for merge request because: 405 Method Not Allowed "
+                                      "(detailed_merge_status: need_rebase)")
 
     @patch("valhalla.ci_provider.gitlab.merge_request.get_gitlab_client")
     @patch("valhalla.ci_provider.gitlab.merge_request.get_project_id")
