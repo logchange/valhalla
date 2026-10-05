@@ -55,20 +55,23 @@ class GitLabValhallaMergeRequest(MergeRequest):
                 warn(f"Could not add comment to merge request because: {e}")
 
         def _enable_auto_merge():
+            mr_obj = None
             try:
                 head_sha = Repo('.').head.commit.hexsha
                 mr_obj = self.project.mergerequests.get(mr_iid, iid=True)
                 # GitLab refreshes the MR asynchronously after push; enabling auto-merge before that
-                # (or without sha) makes GitLab abort it with "source branch was updated"
+                # (or without sha) makes GitLab abort it with "source branch was updated" or reject it with 405
                 for _ in range(30):
-                    if mr_obj.sha == head_sha:
+                    if (mr_obj.sha == head_sha and
+                            getattr(mr_obj, 'detailed_merge_status', None) not in ('checking', 'preparing', 'unchecked')):
                         break
                     time.sleep(2)
                     mr_obj = self.project.mergerequests.get(mr_iid, iid=True)
                 mr_obj.merge(sha=head_sha, merge_when_pipeline_succeeds=True)
                 info("Auto-merge enabled, merge request will be merged when approvals and pipeline succeed")
             except Exception as e:
-                warn(f"Could not enable auto-merge for merge request because: {e}")
+                status = getattr(mr_obj, 'detailed_merge_status', 'unknown')
+                warn(f"Could not enable auto-merge for merge request because: {e} (detailed_merge_status: {status})")
 
         return MergeRequestHook(mr_iid, _add_comment, _enable_auto_merge if merge_request_config.auto_merge else None)
 
