@@ -101,10 +101,7 @@ class GitRepository:
     def __get_push_url(self, token):
         origin = self.repository.remote(name='origin')
         remote_url = origin.url
-        info(f"Remote url: {remote_url}")
         remote_url = remote_url.replace("https://", "").replace("http://", "")
         trimmed_url = remote_url.split('@')[-1] if '@' in remote_url else remote_url
-        info(f"trimmed_url: {trimmed_url}")
-        push_url = "https://{}:{}@{}".format("valhalla-bot", token, trimmed_url)
-        info(f"push_url: {push_url}")
-        return push_url
+        info(f"Remote url: {trimmed_url}")
+        return "https://{}:{}@{}".format("valhalla-bot", token, trimmed_url)

@@ -3,6 +3,7 @@ import time
 from typing import List
 
 from git import Repo
+from gitlab.exceptions import GitlabError
 
 from valhalla.ci_provider.git_host import MergeRequest
 from valhalla.ci_provider.gitlab.common import get_gitlab_client, get_project_id
@@ -59,15 +60,27 @@ class GitLabValhallaMergeRequest(MergeRequest):
             try:
                 head_sha = Repo('.').head.commit.hexsha
                 mr_obj = self.project.mergerequests.get(mr_iid, iid=True)
-                # GitLab refreshes the MR asynchronously after push; enabling auto-merge before that
-                # (or without sha) makes GitLab abort it with "source branch was updated" or reject it with 405
-                for _ in range(30):
+                # GitLab refreshes the MR and creates its pipeline asynchronously after push; enabling auto-merge
+                # before that (or without sha) makes GitLab abort it with "source branch was updated" or reject it
+                # with 405, because without a pipeline there is nothing to wait for and it tries to merge right away
+                for _ in range(60):
                     if (mr_obj.sha == head_sha and
+                            (getattr(mr_obj, 'head_pipeline', None) or {}).get('sha') == head_sha and
                             getattr(mr_obj, 'detailed_merge_status', None) not in ('checking', 'preparing', 'unchecked')):
                         break
                     time.sleep(2)
                     mr_obj = self.project.mergerequests.get(mr_iid, iid=True)
-                mr_obj.merge(sha=head_sha, merge_when_pipeline_succeeds=True)
+                else:
+                    warn("Pipeline for merge request did not start in time, trying to enable auto-merge anyway")
+                for attempt in range(3):
+                    try:
+                        mr_obj.merge(sha=head_sha, merge_when_pipeline_succeeds=True)
+                        break
+                    except GitlabError as e:
+                        if e.response_code != 405 or attempt == 2:
+                            raise
+                        time.sleep(5)
+                        mr_obj = self.project.mergerequests.get(mr_iid, iid=True)
                 info("Auto-merge enabled, merge request will be merged when approvals and pipeline succeed")
             except Exception as e:
                 status = getattr(mr_obj, 'detailed_merge_status', 'unknown')
