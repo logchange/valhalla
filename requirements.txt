@@ -3,4 +3,4 @@ PyYAML==6.0.3
 GitPython==3.2.1
 python-gitlab==8.6.0
 requests==2.34.2
-pytest==9.1.1
+pytest==9.2.0
