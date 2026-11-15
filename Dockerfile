@@ -24,7 +24,8 @@ RUN apk --update --no-cache add  \
     maven  \
     openjdk8 \
     nodejs \
-    npm && \
+    npm \
+    libatomic && \
     npm install -g pnpm
 
 # renovate: datasource=github-releases depName=logchange packageName=logchange/logchange
